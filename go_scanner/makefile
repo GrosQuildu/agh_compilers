@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -std=c89 -g -Wall -Werror -pedantic-errors -fstack-protector -D_FORTIFY_SOURCE=2 -Wl,-z,relro -Wl,-z,now -Wformat-security -fsanitize=address,undefined -Werror=array-bounds
 
-TARGET = go_scaner
+TARGET = go_scanner
 SRC = $(wildcard *.c)
 
 all: $(SRC)
@@ -9,4 +9,4 @@ all: $(SRC)
 
 .PHONY: clean
 clean:
-	rm -f $(EXE)
+	rm -f $(TARGET)

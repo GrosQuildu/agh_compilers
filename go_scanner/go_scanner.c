@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "go_scaner.h"
+#include "go_scanner.h"
 
 /* States */
 struct state s_start(context* ctx) {
@@ -415,7 +415,7 @@ struct state s_error(context* ctx) {
     return ret;
 }
 
-token scaner_get_token(FILE *input_stream) {
+token scanner_get_token(FILE *input_stream) {
     struct state current_state = {s_start};
 
     context ctx;
@@ -456,7 +456,7 @@ int main(int argc, char *argv[]) {
         if(argc == 1)
             printf("Usage: %s filename.go [-d | --debug]\n", argv[0]);
         else
-            printf("Usage: ./go_scaner filename.go [-d | --debug]\n");
+            printf("Usage: ./go_scanner filename.go [-d | --debug]\n");
         exit(EXIT_FAILURE);
     }
     
@@ -467,7 +467,7 @@ int main(int argc, char *argv[]) {
     if(debug) {
         puts("Tokens:");
         while(end_of_tokens == false) {
-            current_token = scaner_get_token(input_stream);
+            current_token = scanner_get_token(input_stream);
             printf("- %s: ", token_id_string[current_token.id]);
             vector_print(&current_token.vec);
             puts("\n--------");
