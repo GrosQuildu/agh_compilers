@@ -281,7 +281,6 @@ struct state s_comment_oneline(context* ctx) {
     } else {
         ctx->tok.id = COMMENT_TOK;
         next_state.func = s_eot;
-        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     }
     return next_state;
 }

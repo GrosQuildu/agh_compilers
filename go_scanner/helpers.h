@@ -31,5 +31,6 @@ void vector_delete(vector *vec);
 void vector_append(vector *vec, char c);
 bool vector_cmp(vector *vec, char *buf, uint32_t buf_size);
 void vector_print(vector *vec);
+void vector_print_html(vector *vec, FILE *output_stream);
 
 #endif /* HELPERS_H */

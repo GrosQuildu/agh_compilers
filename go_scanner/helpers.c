@@ -67,10 +67,14 @@ void vector_delete(vector *vec) {
 }
 
 void vector_append(vector *vec, char c) {
-    if(vec->current >= vec->beginning + vec->max_size) {
+    size_t current_size;
+    if(vec->current - vec->beginning >= vec->max_size) {
+        current_size = vec->current - vec->beginning;
         vec->beginning = realloc(vec->beginning, vec->max_size*2);
         if(vec->beginning == NULL)
             exit_error("Error in append");
+        vec->current = vec->beginning + current_size;
+        vec->max_size = vec->max_size*2;
     }
     *(vec->current)++ = c;
 }
@@ -86,5 +90,27 @@ void vector_print(vector *vec) {
       putchar(*vec_ptr);
     else
       printf("\\x%02x", *vec_ptr);
+  }
+}
+
+void vector_print_html(vector *vec, FILE *output_stream) {
+  char *vec_ptr;
+  for (vec_ptr = vec->beginning; vec_ptr < vec->current; vec_ptr++) {
+    if(*vec_ptr == '&')
+      fwrite("&amp;", 5, 1, output_stream);
+    else if(*vec_ptr == '<')
+      fwrite("&lt;", 4, 1, output_stream);
+    else if(*vec_ptr == '>')
+      fwrite("&gt;", 4, 1, output_stream);
+    else if(*vec_ptr == '\'')
+      fwrite("&apos;", 6, 1, output_stream);
+    else if(*vec_ptr == '"')
+      fwrite("&quot;", 6, 1, output_stream);
+    else if(*vec_ptr == '\n')
+      fwrite("<br/>\n", 6, 1, output_stream);
+    else if(*vec_ptr == ' ')
+      fwrite("&nbsp;", 6, 1, output_stream);
+    else
+      fwrite(vec_ptr, 1, 1, output_stream);
   }
 }

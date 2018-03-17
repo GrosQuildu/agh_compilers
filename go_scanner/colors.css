@@ -1,0 +1,38 @@
+<style>
+    body {
+        background-color: #222;
+    }
+    div {
+        display: inline-block;
+    }
+    .BREAK_TOK, .CASE_TOK, .CHAN_TOK, .CONST_TOK, .CONTINUE_TOK, .DEFAULT_TOK, .DEFER_TOK, .ELSE_TOK, .FALLTHROUGH_TOK, .FOR_TOK, .FUNC_TOK, .GO_TOK, .GOTO_TOK, .IF_TOK, .IMPORT_TOK, .INTERFACE_TOK, .MAP_TOK, .PACKAGE_TOK, .RANGE_TOK, .RETURN_TOK, .SELECT_TOK, .STRUCT_TOK, .SWITCH_TOK, .TYPE_TOK, .VAR_TOK {
+        color: #30a5ff;
+    }
+    .ADD_TOK, .INC_TOK, .ADD_ASSIGN_TOK, .SUB_TOK, .DEC_TOK, .SUB_ASSIGN_TOK, .MUL_TOK, .MUL_ASSIGN_TOK, .QUO_TOK, .QUO_ASSIGN_TOK, .REM_TOK, .REM_ASSIGN_TOK, .AND_TOK, .AND_NOT_TOK, .AND_NOT_ASSIGN_TOK, .LAND_TOK, .AND_ASSIGN_TOK, .OR_TOK, .OR_ASSIGN_TOK, .LOR_TOK, .XOR_TOK, .XOR_ASSIGN_TOK, .LSS_TOK, .ARROW_TOK, .SHL_TOK, .LEQ_TOK, .SHL_ASSIGN_TOK, .GTR_TOK, .GEQ_TOK, .SHR_TOK, .SHR_ASSIGN_TOK, .ASSIGN_TOK, .EQL_TOK, .PERIOD_TOK, .ELLIPSIS_TOK, .LPAREN_TOK, .LBRACK_TOK, .LBRACE_TOK, .COMMA_TOK, .RPAREN_TOK, .RBRACK_TOK, .RBRACE_TOK, .SEMICOLON_TOK, .COLON_TOK, .DEFINE_TOK, .NOT_TOK, .NEQ_TOK {
+        color: #9f9216;
+    }
+    .COMMENT_TOK {
+        color: #777;
+    }
+    .ERROR_TOK {
+        color: #d70922;
+    }
+    .STRING_TOK {
+        color: #2b8312;
+    }
+    .CHAR_TOK {
+        color: #55c834;
+    }
+    .IDENT_TOK {
+        color: #a5daec;
+    }
+    .INT_TOK {
+        color: #d28034;
+    }
+    .FLOAT_TOK {
+        color: #d26434;
+    }
+    .IMAG_TOK {
+        color: #ca4f28;
+    }
+</style>

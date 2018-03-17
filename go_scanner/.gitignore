@@ -1,2 +1,3 @@
 .gdb_history
-go_scanner
+go2html
+*.html

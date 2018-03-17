@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     if(debug) {
     /* Debug - only list tokens */
         while(end_of_tokens == false) {
-            current_token = scanner_get_token(&ctx, false);
+            current_token = scanner_get_token(&ctx, true);
             puts("Tokens:");
             printf("- %s: ", token_id_string[current_token.id]);
             vector_print(&current_token.vec);
@@ -63,10 +63,11 @@ int main(int argc, char *argv[]) {
 
         while(end_of_tokens == false) {
             current_token = scanner_get_token(&ctx, false);
-            highlighter_translate(current_token, output_stream);
 
             if(current_token.id == EOF_TOK)
                 end_of_tokens = true;
+            else
+                highlighter_translate(current_token, output_stream);
             vector_delete(&current_token.vec);
         }
 
@@ -77,6 +78,8 @@ int main(int argc, char *argv[]) {
 
     if(flock(fileno(input_stream), LOCK_UN) < 0)
         exit_error("Failure unlocking input file");
+    fclose(input_stream);
+    fclose(output_stream);
     
     return 0;
 }
