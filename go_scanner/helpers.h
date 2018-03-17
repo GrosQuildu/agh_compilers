@@ -18,6 +18,7 @@ bool is_digit(char c);
 bool is_hexdigit(char c);
 bool is_specialchar(char c);
 bool is_printable(char c);
+bool is_operator(char c);
 
 typedef struct {
     char *beginning;

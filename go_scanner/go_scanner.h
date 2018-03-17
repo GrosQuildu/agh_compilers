@@ -1,6 +1,11 @@
 #ifndef GO_SCANER_H
 #define GO_SCANER_H
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <sys/file.h>
+
 #include "helpers.h"
 
 
@@ -29,6 +34,7 @@ h - [0-9a-f]
     TOK(ERROR_TOK)       /* | ERROR */ \
     TOK(EOF_TOK)         /* | EOF */ \
     TOK(COMMENT_TOK)     /* | //{*} | /start*start/ */ \
+    TOK(WHITESPACE_TOK)  /* | whitespaces */ \
     \
     /* Operators and delimiters */ \
     TOK(ADD_TOK)         /* | + */ \
@@ -128,49 +134,18 @@ h - [0-9a-f]
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_ENUM_END(ENUM) ENUM
 #define GENERATE_STRING(STRING) #STRING,
-    #define GENERATE_STRING_END(STRING) #STRING
+#define GENERATE_STRING_END(STRING) #STRING
 
 enum token_id {
     FOREACH_TOK(GENERATE_ENUM,GENERATE_ENUM_END)
 };
 
-static const char *token_id_string[] = {
-    FOREACH_TOK(GENERATE_STRING,GENERATE_STRING_END)
-};
+extern char *token_id_string[];
 
 typedef struct {
     char *key;
     enum token_id value;
 } keyword;
-
-#define KEYWORD_LIST_SIZE (25)
-keyword keyword_list[KEYWORD_LIST_SIZE] = {
-    {"break", BREAK_TOK},
-    {"default", DEFAULT_TOK},
-    {"func", FUNC_TOK},
-    {"interface", INTERFACE_TOK},
-    {"select", SELECT_TOK},
-    {"case", CASE_TOK},
-    {"defer", DEFER_TOK},
-    {"go", GO_TOK},
-    {"map", MAP_TOK},
-    {"struct", STRUCT_TOK},
-    {"chan", CHAN_TOK},
-    {"else", ELSE_TOK},
-    {"goto", GOTO_TOK},
-    {"package", PACKAGE_TOK},
-    {"switch", SWITCH_TOK},
-    {"const", CONST_TOK},
-    {"fallthrough", FALLTHROUGH_TOK},
-    {"if", IF_TOK},
-    {"range", RANGE_TOK},
-    {"type", TYPE_TOK},
-    {"continue", CONTINUE_TOK},
-    {"for", FOR_TOK},
-    {"import", IMPORT_TOK},
-    {"return", RETURN_TOK},
-    {"var", VAR_TOK}
-};
 
 typedef struct {
     enum token_id id;
@@ -181,6 +156,7 @@ typedef struct {
     char current_char;
     FILE *input_stream;
     token tok;
+    bool initialized;
 } context;
 
 struct state {
@@ -203,6 +179,7 @@ struct state s_comment_oneline(context *ctx);
 struct state s_comment_multiline(context *ctx);
 struct state s_comment_multiline_end(context *ctx);
 struct state s_operator(context *ctx);
+struct state s_operator_ellipsis(context* ctx);
 struct state s_string(context *ctx);
 struct state s_special_string(context *ctx);
 struct state s_hexstring_start(context *ctx);
@@ -214,5 +191,9 @@ struct state s_hexchar_end(context *ctx);
 struct state s_char_end(context *ctx);
 struct state s_eot(context *ctx);
 struct state s_error(context *ctx);
+
+/* scanning */
+token scanner_get_token(context *ctx, bool skip_whitespace_tokens);
+void scanner_init(context *ctx, FILE *input_stream);
 
 #endif /* GO_SCANER_H */

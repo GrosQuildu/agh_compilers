@@ -1,13 +1,95 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-
 #include "go_scanner.h"
+
+#define KEYWORD_LIST_SIZE (25)
+keyword keyword_list[KEYWORD_LIST_SIZE] = {
+    {"break", BREAK_TOK},
+    {"default", DEFAULT_TOK},
+    {"func", FUNC_TOK},
+    {"interface", INTERFACE_TOK},
+    {"select", SELECT_TOK},
+    {"case", CASE_TOK},
+    {"defer", DEFER_TOK},
+    {"go", GO_TOK},
+    {"map", MAP_TOK},
+    {"struct", STRUCT_TOK},
+    {"chan", CHAN_TOK},
+    {"else", ELSE_TOK},
+    {"goto", GOTO_TOK},
+    {"package", PACKAGE_TOK},
+    {"switch", SWITCH_TOK},
+    {"const", CONST_TOK},
+    {"fallthrough", FALLTHROUGH_TOK},
+    {"if", IF_TOK},
+    {"range", RANGE_TOK},
+    {"type", TYPE_TOK},
+    {"continue", CONTINUE_TOK},
+    {"for", FOR_TOK},
+    {"import", IMPORT_TOK},
+    {"return", RETURN_TOK},
+    {"var", VAR_TOK}
+};
+
+
+#define OPERATOR_LIST_SIZE (47)
+keyword operator_list[OPERATOR_LIST_SIZE] = {
+    {"+", ADD_TOK}, 
+    {"++", INC_TOK}, 
+    {"+=", ADD_ASSIGN_TOK}, 
+    {"-", SUB_TOK}, 
+    {"--", DEC_TOK}, 
+    {"-=", SUB_ASSIGN_TOK}, 
+    {"*", MUL_TOK}, 
+    {"*=", MUL_ASSIGN_TOK}, 
+    {"/", QUO_TOK}, 
+    {"/=", QUO_ASSIGN_TOK}, 
+    {"%", REM_TOK}, 
+    {"%=", REM_ASSIGN_TOK}, 
+    {"&", AND_TOK}, 
+    {"&^", AND_NOT_TOK}, 
+    {"&^=", AND_NOT_ASSIGN_TOK}, 
+    {"&&", LAND_TOK}, 
+    {"&=", AND_ASSIGN_TOK}, 
+    {"|", OR_TOK}, 
+    {"|=", OR_ASSIGN_TOK}, 
+    {"||", LOR_TOK}, 
+    {"^", XOR_TOK}, 
+    {"^=", XOR_ASSIGN_TOK}, 
+    {"<", LSS_TOK}, 
+    {"<-", ARROW_TOK}, 
+    {"<<", SHL_TOK}, 
+    {"<=", LEQ_TOK}, 
+    {"<<=", SHL_ASSIGN_TOK}, 
+    {">", GTR_TOK}, 
+    {">=", GEQ_TOK}, 
+    {">>", SHR_TOK}, 
+    {">>=", SHR_ASSIGN_TOK}, 
+    {"=", ASSIGN_TOK}, 
+    {"==", EQL_TOK}, 
+    {".", PERIOD_TOK}, 
+    {"...", ELLIPSIS_TOK}, 
+    {"(", LPAREN_TOK}, 
+    {"[", LBRACK_TOK}, 
+    {"{", LBRACE_TOK}, 
+    {",", COMMA_TOK}, 
+    {")", RPAREN_TOK}, 
+    {"]", RBRACK_TOK}, 
+    {"}", RBRACE_TOK}, 
+    {"; ", SEMICOLON_TOK}, 
+    {":", COLON_TOK}, 
+    {":=", DEFINE_TOK}, 
+    {"!", NOT_TOK}, 
+    {"!=", NEQ_TOK}
+};
+
+char *token_id_string[] = {
+    FOREACH_TOK(GENERATE_STRING,GENERATE_STRING_END)
+};
 
 /* States */
 struct state s_start(context* ctx) {
     struct state next_state;
-    vector_init(&ctx->tok.vec, 32);
+    bool is_operator = false;
+    int i;
     vector_append(&ctx->tok.vec, ctx->current_char);
 
     if(is_letter(ctx->current_char))
@@ -22,22 +104,35 @@ struct state s_start(context* ctx) {
         next_state.func = s_string;
     else if(ctx->current_char == '/')
         next_state.func = s_comment_start;
-    else
-        next_state.func = s_operator;
-
+    else {
+        for(i = 0; i < OPERATOR_LIST_SIZE; i++) {
+            if(vector_cmp(&ctx->tok.vec, operator_list[i].key, strlen(operator_list[i].key))) {
+                ctx->tok.id = operator_list[i].value;
+                is_operator = true;
+            }
+        }
+        if(is_operator)
+            next_state.func = s_operator;
+        else {
+            ctx->tok.id = ERROR_TOK;
+            next_state.func = s_eot;
+            ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
+        } 
+    }
+    
     return next_state;
 }
 
 /* identyficators and keywords */
 struct state s_identificator(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_letter(ctx->current_char) || is_digit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
         next_state.func = s_identificator;
-    } else
-        next_state.func = s_keyword;
+    } else {
+        next_state = s_keyword(ctx);
+    }
 
     return next_state;
 }
@@ -59,7 +154,6 @@ struct state s_keyword(context* ctx) {
 /* numbers */
 struct state s_number_zero_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == 'x') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -77,7 +171,6 @@ struct state s_number_zero_start(context* ctx) {
 
 struct state s_hexnumber_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -92,7 +185,6 @@ struct state s_hexnumber_start(context* ctx) {
 
 struct state s_hexnumber(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -107,7 +199,6 @@ struct state s_hexnumber(context* ctx) {
 
 struct state s_number(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
 
     if(is_digit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -116,6 +207,7 @@ struct state s_number(context* ctx) {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = IMAG_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else if(ctx->current_char == '.') {
         vector_append(&ctx->tok.vec, ctx->current_char);
         next_state.func = s_number_dot;
@@ -129,7 +221,6 @@ struct state s_number(context* ctx) {
 
 struct state s_number_dot(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_digit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -138,6 +229,7 @@ struct state s_number_dot(context* ctx) {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = IMAG_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else {
         ctx->tok.id = INT_TOK;
         next_state.func = s_eot;
@@ -147,7 +239,6 @@ struct state s_number_dot(context* ctx) {
 
 struct state s_float(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_digit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -156,6 +247,7 @@ struct state s_float(context* ctx) {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = IMAG_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else {
         ctx->tok.id = FLOAT_TOK;
         next_state.func = s_eot;
@@ -166,7 +258,6 @@ struct state s_float(context* ctx) {
 /* comments */
 struct state s_comment_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '/') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -183,7 +274,6 @@ struct state s_comment_start(context* ctx) {
 
 struct state s_comment_oneline(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char != '\n') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -191,13 +281,13 @@ struct state s_comment_oneline(context* ctx) {
     } else {
         ctx->tok.id = COMMENT_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     }
     return next_state;
 }
 
 struct state s_comment_multiline(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '*') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -215,12 +305,12 @@ struct state s_comment_multiline(context* ctx) {
 
 struct state s_comment_multiline_end(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '/') {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = COMMENT_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else if(ctx->current_char == '*') {
         vector_append(&ctx->tok.vec, ctx->current_char);
         next_state.func = s_comment_multiline_end;
@@ -237,22 +327,50 @@ struct state s_comment_multiline_end(context* ctx) {
 
 /* operators */
 struct state s_operator(context* ctx) {
-    struct state next_state = {s_eot};
-    char operators[] = {'+', '-', '*'};
+    struct state next_state;
+    int i;
+    bool new_char_extends_operator = false;
+    vector_append(&ctx->tok.vec, ctx->current_char);
 
-    if(in_array(ctx->current_char, operators, 3)) {
-        vector_append(&ctx->tok.vec, ctx->current_char);
-        ctx->tok.id = SUB_TOK;
-    } else {
-        ctx->tok.id = ERROR_TOK;
+    if(ctx->current_char == '.') {
+        /* second dot in ellipsis token*/
+        next_state.func = s_operator_ellipsis;
+        return next_state;
     }
+
+    for(i = 0; i < OPERATOR_LIST_SIZE; i++) {
+        if(vector_cmp(&ctx->tok.vec, operator_list[i].key, strlen(operator_list[i].key))) {
+            ctx->tok.id = operator_list[i].value;
+            new_char_extends_operator = true;
+        }
+    }
+
+    if(new_char_extends_operator)
+        next_state.func = s_operator;
+    else {
+        ctx->tok.vec.current--;
+        next_state.func = s_eot;
+    }
+
+    return next_state;
+}
+
+struct state s_operator_ellipsis(context* ctx) {
+    struct state next_state = {s_eot};
+
+    if(ctx->current_char == '.') {
+        /* third dot in ellipsis token*/
+        vector_append(&ctx->tok.vec, ctx->current_char);
+        ctx->tok.id = ELLIPSIS_TOK;
+    } else
+        ctx->tok.id = ERROR_TOK;
+
     return next_state;
 }
 
 /* strings */
 struct state s_string(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '\\') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -261,6 +379,7 @@ struct state s_string(context* ctx) {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = STRING_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else if(ctx->current_char == EOF) {
         ctx->tok.id = ERROR_TOK;
         next_state.func = s_eot;
@@ -274,7 +393,6 @@ struct state s_string(context* ctx) {
 
 struct state s_special_string(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == 'x') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -292,7 +410,6 @@ struct state s_special_string(context* ctx) {
 
 struct state s_hexstring_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -307,7 +424,6 @@ struct state s_hexstring_start(context* ctx) {
 
 struct state s_hexstring_end(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -323,7 +439,6 @@ struct state s_hexstring_end(context* ctx) {
 /* char */
 struct state s_char_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '\\') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -331,6 +446,7 @@ struct state s_char_start(context* ctx) {
     } else if(ctx->current_char == '\'') {
         ctx->tok.id = ERROR_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else if(ctx->current_char == EOF) {
         ctx->tok.id = ERROR_TOK;
         next_state.func = s_eot;
@@ -342,7 +458,6 @@ struct state s_char_start(context* ctx) {
 
 struct state s_special_char(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == 'x') {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -360,7 +475,6 @@ struct state s_special_char(context* ctx) {
 
 struct state s_hexchar_start(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -375,7 +489,6 @@ struct state s_hexchar_start(context* ctx) {
 
 struct state s_hexchar_end(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(is_hexdigit(ctx->current_char)) {
         vector_append(&ctx->tok.vec, ctx->current_char);
@@ -390,12 +503,12 @@ struct state s_hexchar_end(context* ctx) {
 
 struct state s_char_end(context* ctx) {
     struct state next_state;
-    ctx->current_char = fgetc(ctx->input_stream);
     
     if(ctx->current_char == '\'') {
         vector_append(&ctx->tok.vec, ctx->current_char);
         ctx->tok.id = CHAR_TOK;
         next_state.func = s_eot;
+        ctx->current_char = fgetc(ctx->input_stream); /* go to next byte */
     } else {
         ctx->tok.id = ERROR_TOK;
         next_state.func = s_eot;
@@ -415,68 +528,48 @@ struct state s_error(context* ctx) {
     return ret;
 }
 
-token scanner_get_token(FILE *input_stream) {
-    struct state current_state = {s_start};
+void scanner_init(context *ctx, FILE *input_stream) {
+    ctx->input_stream = input_stream;
+    ctx->current_char = fgetc(ctx->input_stream);
+    ctx->initialized = true;
+} 
 
-    context ctx;
-    ctx.input_stream = input_stream;
-    ctx.current_char = fgetc(ctx.input_stream);
+token scanner_get_token(context *ctx, bool skip_whitespace_tokens) {
+    struct state current_state;
+    bool whitespace_found = false;
 
-    while(ctx.current_char != EOF && is_whitespace(ctx.current_char))
-        ctx.current_char = fgetc(ctx.input_stream);
-
-    if(ctx.current_char == EOF) {
-        ctx.tok.id = EOF_TOK;
-        vector_init(&ctx.tok.vec, 3);
-        vector_append(&ctx.tok.vec, 'E');
-        vector_append(&ctx.tok.vec, '0');
-        vector_append(&ctx.tok.vec, 'F');
-        return ctx.tok;
-    }
-
-    while(current_state.func != s_eot)
-        current_state = (*current_state.func)(&ctx);
-
-    return ctx.tok;
-}
-
-int main(int argc, char *argv[]) {
-    FILE *input_stream;
-    char *input_filename;
-    bool debug = false;
-
-    bool end_of_tokens = false;
-    token current_token;
-
-    if(argc == 3 || argc == 2) {
-        if(argc == 3 && (strcmp(argv[2], "-d") == 0 || strcmp(argv[2],"--debug") == 0))
-            debug = true;
-        input_filename = argv[1];
-    } else {
-        if(argc == 1)
-            printf("Usage: %s filename.go [-d | --debug]\n", argv[0]);
-        else
-            printf("Usage: ./go_scanner filename.go [-d | --debug]\n");
-        exit(EXIT_FAILURE);
-    }
+    vector_init(&ctx->tok.vec, 32);
     
-    input_stream = fopen(input_filename, "r");
-    if(input_stream == NULL)
-        exit_error("Failure opening input file");
-
-    if(debug) {
-        puts("Tokens:");
-        while(end_of_tokens == false) {
-            current_token = scanner_get_token(input_stream);
-            printf("- %s: ", token_id_string[current_token.id]);
-            vector_print(&current_token.vec);
-            puts("\n--------");
-            if(current_token.id == EOF_TOK)
-                end_of_tokens = true;
-
-            vector_delete(&current_token.vec);
+    if(skip_whitespace_tokens) {
+        while(ctx->current_char != EOF && is_whitespace(ctx->current_char))
+            ctx->current_char = fgetc(ctx->input_stream);
+    } else {
+        if(is_whitespace(ctx->current_char))
+            whitespace_found = true;
+        while(ctx->current_char != EOF && is_whitespace(ctx->current_char)) {
+            vector_append(&ctx->tok.vec, ctx->current_char);
+            ctx->current_char = fgetc(ctx->input_stream);
         }
     }
 
-    return 0;
+    if(ctx->current_char == EOF) {
+        ctx->tok.id = EOF_TOK;
+        vector_append(&ctx->tok.vec, 'E');
+        vector_append(&ctx->tok.vec, '0');
+        vector_append(&ctx->tok.vec, 'F');
+        return ctx->tok;
+    }
+    
+    if(whitespace_found) {
+        ctx->tok.id = WHITESPACE_TOK;
+        return ctx->tok;
+    }
+
+    current_state = s_start(ctx);
+    while(current_state.func != s_eot) {
+        ctx->current_char = fgetc(ctx->input_stream);
+        current_state = (*current_state.func)(ctx);
+    }
+
+    return ctx->tok;
 }

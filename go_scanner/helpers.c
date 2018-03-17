@@ -40,8 +40,15 @@ bool is_printable(char c) {
   char printable[33] = {'!', '"', '#', '$', '%', '&', '\'', '(', ')',
                        '*', '+', ',', '-', '.', '/', ':', ';', '<',
                        '=', '>', '?', '@', '[', '\\', ']', '^', '_',
-                       '`', '{', '|', '}', '~', ' '};
+                       '`', '{', '|', '}', '~'};
   return is_letter(c) || is_digit(c) || in_array(c, printable, 33);
+}
+
+bool is_operator(char c) {
+  char operators[20] = {'+', '-', '*', '/', '%', '&', '|', '^',
+                        '<', '>', '=', '(', ')', '[', ']', '.',
+                        ';', ':', '!', ','};
+  return in_array(c, operators, 20);
 }
 
 void vector_init(vector *vec, uint32_t size) {
