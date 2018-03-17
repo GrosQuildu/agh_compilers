@@ -442,26 +442,40 @@ token scaner_get_token(FILE *input_stream) {
 
 int main(int argc, char *argv[]) {
     FILE *input_stream;
+    char *input_filename;
+    bool debug = false;
+
     bool end_of_tokens = false;
     token current_token;
 
-    if(argc != 2) 
-        exit_error("Wrong no. of args, should be 2");
+    if(argc == 3 || argc == 2) {
+        if(argc == 3 && (strcmp(argv[2], "-d") == 0 || strcmp(argv[2],"--debug") == 0))
+            debug = true;
+        input_filename = argv[1];
+    } else {
+        if(argc == 1)
+            printf("Usage: %s filename.go [-d | --debug]\n", argv[0]);
+        else
+            printf("Usage: ./go_scaner filename.go [-d | --debug]\n");
+        exit(EXIT_FAILURE);
+    }
     
-    input_stream = fopen(argv[1], "r");
+    input_stream = fopen(input_filename, "r");
     if(input_stream == NULL)
         exit_error("Failure opening input file");
 
-    puts("Tokens:");
-    while(end_of_tokens == false) {
-        current_token = scaner_get_token(input_stream);
-        printf("- %s: ", token_id_string[current_token.id]);
-        vector_print(&current_token.vec);
-        puts("\n--------");
-        if(current_token.id == EOF_TOK)
-            end_of_tokens = true;
+    if(debug) {
+        puts("Tokens:");
+        while(end_of_tokens == false) {
+            current_token = scaner_get_token(input_stream);
+            printf("- %s: ", token_id_string[current_token.id]);
+            vector_print(&current_token.vec);
+            puts("\n--------");
+            if(current_token.id == EOF_TOK)
+                end_of_tokens = true;
 
-        vector_delete(&current_token.vec);
+            vector_delete(&current_token.vec);
+        }
     }
 
     return 0;
