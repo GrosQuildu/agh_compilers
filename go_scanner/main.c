@@ -74,12 +74,11 @@ int main(int argc, char *argv[]) {
         highlighter_end(output_stream);
         if(flock(fileno(output_stream), LOCK_UN) < 0)
             exit_error("Failure unlocking output file");
+        fclose(output_stream);
     }
 
     if(flock(fileno(input_stream), LOCK_UN) < 0)
         exit_error("Failure unlocking input file");
     fclose(input_stream);
-    fclose(output_stream);
-    
     return 0;
 }

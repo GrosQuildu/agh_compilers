@@ -1,4 +1,4 @@
-package main
+""package main
 
 import "fmt"
 
@@ -17,7 +17,7 @@ func main() {
     asd_ww = 0777
     
     // strings'n'chars
-    var y = "ooooooooooooooooooooooooooooaab"
+    var y = "ooooooooooooooooooooooooooooaabółπœężć"
     var y2 = "lala\n\n\r\x12\x20 pp"
     var z = '\x12'
     z = '\r'
@@ -98,4 +98,4 @@ asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdas
 
 
 x
-*/
+*/""

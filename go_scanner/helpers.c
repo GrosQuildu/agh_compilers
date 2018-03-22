@@ -89,7 +89,7 @@ void vector_print(vector *vec) {
     if(is_printable(*vec_ptr))
       putchar(*vec_ptr);
     else
-      printf("\\x%02x", *vec_ptr);
+      printf("\\x%02x", (*vec_ptr) & 0xff);
   }
 }
 
