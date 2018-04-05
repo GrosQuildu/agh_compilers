@@ -23,7 +23,7 @@ void highlighter_init(FILE *output_stream) {
           fputc(c, output_stream);
     fclose(colors_css);
     
-    fwrite(html_prefix2, 1, strlen(html_prefix), output_stream);
+    fwrite(html_prefix2, 1, strlen(html_prefix2), output_stream);
 }
 
 void highlighter_translate(token current_token, FILE *output_stream) {

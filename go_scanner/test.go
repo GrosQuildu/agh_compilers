@@ -1,4 +1,4 @@
-""package main
+package main
 
 import "fmt"
 
@@ -98,4 +98,4 @@ asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdas
 
 
 x
-*/""
+*/
