@@ -1,0 +1,4 @@
+/home/gros/Informatics/hax/tools/others/clion-2016.3.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/gros/studia/eaiib_3b/kompilatory/go_parser
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/gros/studia/eaiib_3b/kompilatory/go_parser/cmake-build-debug

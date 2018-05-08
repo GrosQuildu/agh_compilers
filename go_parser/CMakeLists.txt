@@ -1,0 +1,86 @@
+if(NOT UNIX)
+    message(WARNING "Unsupported operating system")
+endif()
+
+cmake_minimum_required(VERSION 2.8.4)
+project(go_parser)
+
+
+set(Java_JAVA_EXECUTABLE /usr/bin/java)
+set(ANTLR_JAR_LOCATION /home/gros/studia/eaiib_3b/kompilatory/go_parser/antlr-4.7.1-complete.jar)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
+set(go_parser-GENERATED_SRC
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMLexer.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParser.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserBaseListener.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserBaseVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserListener.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserVisitor.cpp
+)
+
+foreach( src_file ${go_parser-GENERATED_SRC} )
+    set_source_files_properties(
+            ${src_file}
+            PROPERTIES
+            GENERATED TRUE
+    )
+endforeach( src_file ${go_parser-GENERATED_SRC} )
+
+add_custom_target(GenerateParser DEPENDS ${go_parser-GENERATED_SRC})
+add_custom_command(OUTPUT ${go_parser-GENERATED_SRC}
+        COMMAND
+        ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/generated/
+        COMMAND
+        "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/generated/ -package go_parser ${PROJECT_SOURCE_DIR}/Go2LLVMParser.g4 ${PROJECT_SOURCE_DIR}/Go2LLVMLexer.g4
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        DEPENDS ${PROJECT_SOURCE_DIR}/Go2LLVMParser.g4 ${PROJECT_SOURCE_DIR}/Go2LLVMLexer.g4
+        )
+
+include_directories(
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/misc
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/atn
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/dfa
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/tree
+        ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/support
+        ${PROJECT_SOURCE_DIR}/generated
+)
+
+set(go_parser-SRC
+    ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
+    ${go_parser-GENERATED_SRC}
+)
+
+if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set (flags_1 "-Wno-overloaded-virtual")
+else()
+    set (flags_1 "-MP /wd4251")
+endif()
+
+foreach( src_file ${go_parser-SRC} )
+    set_source_files_properties(
+            ${src_file}
+            PROPERTIES
+            COMPILE_FLAGS "${COMPILE_FLAGS} ${flags_1}"
+    )
+endforeach( src_file ${go_parser-SRC} )
+
+add_executable(go_parser
+    ${go_parser-SRC}
+)
+#add_precompiled_header(go_parser ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/src/antlrcpp-Prefix.h)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    target_compile_options(go_parser PRIVATE "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+add_dependencies(go_parser GenerateParser)
+
+target_link_libraries(go_parser ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
+
+#install(TARGETS go_parser
+#    DESTINATION "share"
+#    COMPONENT dev
+#)
