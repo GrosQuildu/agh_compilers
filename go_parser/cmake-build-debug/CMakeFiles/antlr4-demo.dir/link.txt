@@ -1,1 +1,0 @@
-/usr/bin/c++    -std=c++11 -g   CMakeFiles/antlr4-demo.dir/src/go_parser.cpp.o "CMakeFiles/antlr4-demo.dir/generated/*.cpp.o"  -o antlr4-demo -rdynamic -lantlr4_static 

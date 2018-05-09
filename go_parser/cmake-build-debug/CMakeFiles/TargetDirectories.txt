@@ -1,4 +1,0 @@
-/home/gros/studia/eaiib_3b/kompilatory/go_parser/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/gros/studia/eaiib_3b/kompilatory/go_parser/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/gros/studia/eaiib_3b/kompilatory/go_parser/cmake-build-debug/CMakeFiles/go_parser.dir
-/home/gros/studia/eaiib_3b/kompilatory/go_parser/cmake-build-debug/CMakeFiles/GenerateParser.dir
