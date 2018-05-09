@@ -41,6 +41,10 @@ namespace go_parser {
             return visitChildren(ctx);
         }
 
+        virtual antlrcpp::Any visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) override {
+            return visitChildren(ctx);
+        }
+
         virtual antlrcpp::Any visitReturnStmt(Go2LLVMParser::ReturnStmtContext *ctx) override {
             return visitChildren(ctx);
         }
@@ -85,11 +89,15 @@ namespace go_parser {
             return visitChildren(ctx);
         }
 
+        virtual antlrcpp::Any visitArguments(Go2LLVMParser::ArgumentsContext *ctx) override {
+            return visitChildren(ctx);
+        }
+
         virtual antlrcpp::Any visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) override {
             return visitChildren(ctx);
         }
 
-        virtual antlrcpp::Any visitFunction(Go2LLVMParser::FunctionContext *ctx) override {
+        virtual antlrcpp::Any visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx) override {
             return visitChildren(ctx);
         }
 

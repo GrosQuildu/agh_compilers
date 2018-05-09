@@ -76,15 +76,6 @@ IMAG_TOK
     ;
 
 // Operators
-UNARY_OP_TOK
-    : '+'
-    | '-'
-    | '!'
-    | '^'
-    | '*'
-    | '&'
-    ;
-
 BINARY_OP_TOK
     : '||' | '&&' | REL_OP | ADD_OP | MUL_OP
     ;
@@ -115,29 +106,24 @@ fragment MUL_OP
     | '&^'
     ;
 
+UNARY_OP_TOK
+    : '+'
+    | '-'
+    | '!'
+    | '^'
+    | '*'
+    | '&'
+    ;
 
 // Keywords
 PACKAGE_TOK
     : 'package'
     ;
-TYPE_TOK
-    : 'type'
-    ;
-
 VAR_TOK
     : 'var'
     ;
 FUNC_TOK
     : 'func'
-    ;
-FOR_TOK
-    : 'for'
-    ;
-BREAK_TOK
-    : 'break'
-    ;
-CONTINUE_TOK
-    : 'continue'
     ;
 RETURN_TOK
     : 'return'
