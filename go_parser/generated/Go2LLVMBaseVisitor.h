@@ -1,20 +1,20 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVMParser.g4 by ANTLR 4.7.1
+// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
 
 #include "antlr4-runtime.h"
-#include "Go2LLVMParserVisitor.h"
+#include "Go2LLVMVisitor.h"
 
 
 namespace go_parser {
 
 /**
- * This class provides an empty implementation of Go2LLVMParserVisitor, which can be
+ * This class provides an empty implementation of Go2LLVMVisitor, which can be
  * extended to create a visitor which only needs to handle a subset of the available methods.
  */
-class  Go2LLVMParserBaseVisitor : public Go2LLVMParserVisitor {
+class  Go2LLVMBaseVisitor : public Go2LLVMVisitor {
 public:
 
   virtual antlrcpp::Any visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) override {

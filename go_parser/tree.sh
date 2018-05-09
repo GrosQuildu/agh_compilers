@@ -9,7 +9,7 @@ if [[ $1 = "g" ]]; then
     mkdir -p ./tmp_tree
 
     echo "generating..."
-    java -Xmx500M -cp "/usr/local/lib/antlr-4.7.1-complete.jar" org.antlr.v4.Tool -o tmp_tree Go2LLVMLexer.g4 Go2LLVMParser.g4
+    java -Xmx500M -cp "/usr/local/lib/antlr-4.7.1-complete.jar" org.antlr.v4.Tool -o tmp_tree Go2LLVM.g4
 
     echo "compiling..."
     javac tmp_tree/*.java

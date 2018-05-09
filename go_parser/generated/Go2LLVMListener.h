@@ -1,5 +1,5 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVMParser.g4 by ANTLR 4.7.1
+// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -13,7 +13,7 @@ namespace go_parser {
 /**
  * This interface defines an abstract listener for a parse tree produced by Go2LLVMParser.
  */
-class  Go2LLVMParserListener : public antlr4::tree::ParseTreeListener {
+class  Go2LLVMListener : public antlr4::tree::ParseTreeListener {
 public:
 
   virtual void enterSourceFile(Go2LLVMParser::SourceFileContext *ctx) = 0;

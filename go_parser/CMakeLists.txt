@@ -14,10 +14,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(go_parser-GENERATED_SRC
         ${PROJECT_SOURCE_DIR}/generated/Go2LLVMLexer.cpp
         ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParser.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserBaseListener.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserBaseVisitor.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserListener.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParserVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMBaseListener.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMBaseVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMListener.cpp
+        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMVisitor.cpp
 )
 
 foreach( src_file ${go_parser-GENERATED_SRC} )
@@ -33,9 +33,9 @@ add_custom_command(OUTPUT ${go_parser-GENERATED_SRC}
         COMMAND
         ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/generated/
         COMMAND
-        "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/generated/ -package go_parser ${PROJECT_SOURCE_DIR}/Go2LLVMParser.g4 ${PROJECT_SOURCE_DIR}/Go2LLVMLexer.g4
+        "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/generated/ -package go_parser ${PROJECT_SOURCE_DIR}/Go2LLVM.g4
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-        DEPENDS ${PROJECT_SOURCE_DIR}/Go2LLVMParser.g4 ${PROJECT_SOURCE_DIR}/Go2LLVMLexer.g4
+        DEPENDS ${PROJECT_SOURCE_DIR}/Go2LLVM.g4
         )
 
 include_directories(

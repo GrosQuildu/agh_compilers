@@ -1,21 +1,21 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVMParser.g4 by ANTLR 4.7.1
+// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
 
 #include "antlr4-runtime.h"
-#include "Go2LLVMParserListener.h"
+#include "Go2LLVMListener.h"
 
 
 namespace go_parser {
 
 /**
- * This class provides an empty implementation of Go2LLVMParserListener,
+ * This class provides an empty implementation of Go2LLVMListener,
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-class  Go2LLVMParserBaseListener : public Go2LLVMParserListener {
+class  Go2LLVMBaseListener : public Go2LLVMListener {
 public:
 
   virtual void enterSourceFile(Go2LLVMParser::SourceFileContext * /*ctx*/) override { }

@@ -19,6 +19,7 @@
 using namespace go_parser;
 using namespace antlr4;
 
+
 int main(int, const char **) {
     std::ifstream stream;
     stream.open("test.go");
@@ -30,7 +31,14 @@ int main(int, const char **) {
 
     Go2LLVMParser::SourceFileContext* tree = parser.sourceFile();
 
-    Go2LLVMMyVisitor visitor;
+    tokens.fill();
+    for (auto token : tokens.getTokens()) {
+        std::cout << token->toString() << std::endl;
+    }
+
+    std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+
+//    Go2LLVMMyVisitor visitor;
 //    Scene scene = visitor.visitFile(tree);
 //    scene.draw();
 

@@ -1,5 +1,5 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVMParser.g4 by ANTLR 4.7.1
+// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -14,7 +14,7 @@ namespace go_parser {
  * This class defines an abstract visitor for a parse tree
  * produced by Go2LLVMParser.
  */
-class  Go2LLVMParserVisitor : public antlr4::tree::AbstractParseTreeVisitor {
+class  Go2LLVMVisitor : public antlr4::tree::AbstractParseTreeVisitor {
 public:
 
   /**

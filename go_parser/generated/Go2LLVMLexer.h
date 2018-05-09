@@ -1,5 +1,5 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVMLexer.g4 by ANTLR 4.7.1
+// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -13,11 +13,14 @@ namespace go_parser {
 class  Go2LLVMLexer : public antlr4::Lexer {
 public:
   enum {
-    STRING_TOK = 1, INT_TOK = 2, FLOAT_TOK = 3, IMAG_TOK = 4, BINARY_OP_TOK = 5, 
-    UNARY_OP_TOK = 6, PACKAGE_TOK = 7, VAR_TOK = 8, FUNC_TOK = 9, RETURN_TOK = 10, 
-    IF_TOK = 11, ELSE_TOK = 12, IDENT_TOK = 13, BO = 14, BC = 15, PO = 16, 
-    PC = 17, SEMICOLON = 18, EQ = 19, COMMA = 20, WS = 21, COMMENT = 22, 
-    LINE_COMMENT = 23, TERMINATOR = 24
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
+    STRING_TOK = 21, INT_TOK = 22, FLOAT_TOK = 23, IMAG_TOK = 24, UNARY_OP_TOK = 25, 
+    BINARY_OP_TOK = 26, PACKAGE_TOK = 27, VAR_TOK = 28, FUNC_TOK = 29, RETURN_TOK = 30, 
+    IF_TOK = 31, ELSE_TOK = 32, IDENT_TOK = 33, BO = 34, BC = 35, PO = 36, 
+    PC = 37, SEMICOLON = 38, EQ = 39, COMMA = 40, WS = 41, COMMENT = 42, 
+    LINE_COMMENT = 43, TERMINATOR = 44
   };
 
   Go2LLVMLexer(antlr4::CharStream *input);

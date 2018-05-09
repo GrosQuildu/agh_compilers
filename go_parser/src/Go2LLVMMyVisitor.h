@@ -6,7 +6,7 @@
 #define GO_PARSER_GO2LLVMMYVISITOR_H
 
 #include "antlr4-runtime.h"
-#include "Go2LLVMParserVisitor.h"
+#include "Go2LLVMVisitor.h"
 
 namespace go_parser {
 
@@ -14,7 +14,7 @@ namespace go_parser {
  * This class provides an empty implementation of Go2LLVMVisitor, which can be
  * extended to create a visitor which only needs to handle a subset of the available methods.
  */
-    class Go2LLVMMyVisitor : public Go2LLVMParserVisitor {
+    class Go2LLVMMyVisitor : public Go2LLVMVisitor {
     public:
 
         virtual antlrcpp::Any visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) override {
