@@ -25,12 +25,12 @@ public:
 
   enum {
     RuleSourceFile = 0, RulePackageClause = 1, RuleTopLevelDecl = 2, RuleBlock = 3, 
-    RuleStatementList = 4, RuleStatement = 5, RuleIfStmt = 6, RuleReturnStmt = 7, 
-    RuleSimpleStmt = 8, RuleAssignment = 9, RuleEmptyStmt = 10, RuleDeclaration = 11, 
-    RuleIdentifierList = 12, RuleExpressionList = 13, RuleType = 14, RuleExpression = 15, 
-    RuleUnaryExpr = 16, RuleOperand = 17, RuleArguments = 18, RuleBasicLit = 19, 
-    RuleFunctionDecl = 20, RuleSignature = 21, RuleResult = 22, RuleParameters = 23, 
-    RuleParameterList = 24, RuleParameterDecl = 25, RuleEos = 26
+    RuleType = 4, RuleEos = 5, RuleStatementList = 6, RuleStatement = 7, 
+    RuleIfStmt = 8, RuleReturnStmt = 9, RuleSimpleStmt = 10, RuleAssignment = 11, 
+    RuleEmptyStmt = 12, RuleDeclaration = 13, RuleIdentifierList = 14, RuleExpression = 15, 
+    RuleUnaryExpr = 16, RuleExpressionList = 17, RuleOperand = 18, RuleArguments = 19, 
+    RuleBasicLit = 20, RuleFunctionDecl = 21, RuleSignature = 22, RuleResult = 23, 
+    RuleParameters = 24, RuleParameterList = 25, RuleParameterDecl = 26
   };
 
   Go2LLVMParser(antlr4::TokenStream *input);
@@ -43,10 +43,41 @@ public:
   virtual antlr4::dfa::Vocabulary& getVocabulary() const override;
 
 
+      /**
+      * Returns {@code true} iff on the current index of the parser's
+      * token stream a token exists on the {@code HIDDEN} channel which
+      * either is a line terminator, or is a multi line comment that
+      * contains a line terminator.
+      */
+      bool lineTerminatorAhead() {
+        // Get the token ahead of the current index.
+        size_t possibleIndexEosToken = this->getCurrentToken()->getTokenIndex() - 1;
+        antlr4::Token *ahead = _input->get(possibleIndexEosToken);
+        if (ahead->getChannel() != antlr4::Lexer::HIDDEN) {
+            return false;
+        }
+
+        if (ahead->getType() == TERMINATOR)
+            return true;
+
+        if (ahead->getType() == WS) {
+            possibleIndexEosToken = this->getCurrentToken()->getTokenIndex() - 2;
+            ahead = _input->get(possibleIndexEosToken);
+        }
+
+        std::string text = ahead->getText();
+        size_t type = ahead->getType();
+
+        return (type == COMMENT && (text.find("\r") != std::string::npos || text.find("\n") != std::string::npos)) || (type == TERMINATOR);
+      }
+
+
   class SourceFileContext;
   class PackageClauseContext;
   class TopLevelDeclContext;
   class BlockContext;
+  class TypeContext;
+  class EosContext;
   class StatementListContext;
   class StatementContext;
   class IfStmtContext;
@@ -56,10 +87,9 @@ public:
   class EmptyStmtContext;
   class DeclarationContext;
   class IdentifierListContext;
-  class ExpressionListContext;
-  class TypeContext;
   class ExpressionContext;
   class UnaryExprContext;
+  class ExpressionListContext;
   class OperandContext;
   class ArgumentsContext;
   class BasicLitContext;
@@ -68,8 +98,7 @@ public:
   class ResultContext;
   class ParametersContext;
   class ParameterListContext;
-  class ParameterDeclContext;
-  class EosContext; 
+  class ParameterDeclContext; 
 
   class  SourceFileContext : public antlr4::ParserRuleContext {
   public:
@@ -138,6 +167,37 @@ public:
   };
 
   BlockContext* block();
+
+  class  TypeContext : public antlr4::ParserRuleContext {
+  public:
+    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *IDENT_TOK();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  TypeContext* type();
+
+  class  EosContext : public antlr4::ParserRuleContext {
+  public:
+    EosContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *SEMICOLON();
+    antlr4::tree::TerminalNode *EOF();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  EosContext* eos();
 
   class  StatementListContext : public antlr4::ParserRuleContext {
   public:
@@ -235,10 +295,9 @@ public:
   public:
     AssignmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<ExpressionListContext *> expressionList();
-    ExpressionListContext* expressionList(size_t i);
+    IdentifierListContext *identifierList();
     antlr4::tree::TerminalNode *EQ();
-    antlr4::tree::TerminalNode *BINARY_OP_TOK();
+    ExpressionListContext *expressionList();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -301,6 +360,43 @@ public:
 
   IdentifierListContext* identifierList();
 
+  class  ExpressionContext : public antlr4::ParserRuleContext {
+  public:
+    Go2LLVMParser::ExpressionContext *LE = nullptr;;
+    antlr4::Token *binary_op_tok = nullptr;;
+    Go2LLVMParser::ExpressionContext *RE = nullptr;;
+    ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    UnaryExprContext *unaryExpr();
+    std::vector<ExpressionContext *> expression();
+    ExpressionContext* expression(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  ExpressionContext* expression();
+  ExpressionContext* expression(int precedence);
+  class  UnaryExprContext : public antlr4::ParserRuleContext {
+  public:
+    antlr4::Token *unary_op_tok = nullptr;;
+    UnaryExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    OperandContext *operand();
+    UnaryExprContext *unaryExpr();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  UnaryExprContext* unaryExpr();
+
   class  ExpressionListContext : public antlr4::ParserRuleContext {
   public:
     ExpressionListContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -319,70 +415,64 @@ public:
 
   ExpressionListContext* expressionList();
 
-  class  TypeContext : public antlr4::ParserRuleContext {
-  public:
-    TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *IDENT_TOK();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  TypeContext* type();
-
-  class  ExpressionContext : public antlr4::ParserRuleContext {
-  public:
-    ExpressionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    UnaryExprContext *unaryExpr();
-    std::vector<ExpressionContext *> expression();
-    ExpressionContext* expression(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  ExpressionContext* expression();
-  ExpressionContext* expression(int precedence);
-  class  UnaryExprContext : public antlr4::ParserRuleContext {
-  public:
-    UnaryExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    OperandContext *operand();
-    UnaryExprContext *unaryExpr();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  UnaryExprContext* unaryExpr();
-
   class  OperandContext : public antlr4::ParserRuleContext {
   public:
     OperandContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    BasicLitContext *basicLit();
-    antlr4::tree::TerminalNode *IDENT_TOK();
-    ArgumentsContext *arguments();
-    antlr4::tree::TerminalNode *PO();
-    ExpressionContext *expression();
-    antlr4::tree::TerminalNode *PC();
+   
+    OperandContext() : antlr4::ParserRuleContext() { }
+    void copyFrom(OperandContext *context);
+    using antlr4::ParserRuleContext::copyFrom;
 
+    virtual size_t getRuleIndex() const override;
+
+   
+  };
+
+  class  OperandBasicLitContext : public OperandContext {
+  public:
+    OperandBasicLitContext(OperandContext *ctx);
+
+    BasicLitContext *basicLit();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
+  };
+
+  class  OperandIdentContext : public OperandContext {
+  public:
+    OperandIdentContext(OperandContext *ctx);
+
+    antlr4::tree::TerminalNode *IDENT_TOK();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OperandFuncContext : public OperandContext {
+  public:
+    OperandFuncContext(OperandContext *ctx);
+
+    antlr4::tree::TerminalNode *IDENT_TOK();
+    ArgumentsContext *arguments();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OperandExpContext : public OperandContext {
+  public:
+    OperandExpContext(OperandContext *ctx);
+
+    antlr4::tree::TerminalNode *PO();
+    ExpressionContext *expression();
+    antlr4::tree::TerminalNode *PC();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   OperandContext* operand();
@@ -525,24 +615,9 @@ public:
 
   ParameterDeclContext* parameterDecl();
 
-  class  EosContext : public antlr4::ParserRuleContext {
-  public:
-    EosContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *SEMICOLON();
-    antlr4::tree::TerminalNode *EOF();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  EosContext* eos();
-
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
+  bool eosSempred(EosContext *_localctx, size_t predicateIndex);
   bool expressionSempred(ExpressionContext *_localctx, size_t predicateIndex);
 
 private:

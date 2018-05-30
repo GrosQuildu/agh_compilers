@@ -28,6 +28,12 @@ public:
   virtual void enterBlock(Go2LLVMParser::BlockContext *ctx) = 0;
   virtual void exitBlock(Go2LLVMParser::BlockContext *ctx) = 0;
 
+  virtual void enterType(Go2LLVMParser::TypeContext *ctx) = 0;
+  virtual void exitType(Go2LLVMParser::TypeContext *ctx) = 0;
+
+  virtual void enterEos(Go2LLVMParser::EosContext *ctx) = 0;
+  virtual void exitEos(Go2LLVMParser::EosContext *ctx) = 0;
+
   virtual void enterStatementList(Go2LLVMParser::StatementListContext *ctx) = 0;
   virtual void exitStatementList(Go2LLVMParser::StatementListContext *ctx) = 0;
 
@@ -55,20 +61,26 @@ public:
   virtual void enterIdentifierList(Go2LLVMParser::IdentifierListContext *ctx) = 0;
   virtual void exitIdentifierList(Go2LLVMParser::IdentifierListContext *ctx) = 0;
 
-  virtual void enterExpressionList(Go2LLVMParser::ExpressionListContext *ctx) = 0;
-  virtual void exitExpressionList(Go2LLVMParser::ExpressionListContext *ctx) = 0;
-
-  virtual void enterType(Go2LLVMParser::TypeContext *ctx) = 0;
-  virtual void exitType(Go2LLVMParser::TypeContext *ctx) = 0;
-
   virtual void enterExpression(Go2LLVMParser::ExpressionContext *ctx) = 0;
   virtual void exitExpression(Go2LLVMParser::ExpressionContext *ctx) = 0;
 
   virtual void enterUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) = 0;
   virtual void exitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) = 0;
 
-  virtual void enterOperand(Go2LLVMParser::OperandContext *ctx) = 0;
-  virtual void exitOperand(Go2LLVMParser::OperandContext *ctx) = 0;
+  virtual void enterExpressionList(Go2LLVMParser::ExpressionListContext *ctx) = 0;
+  virtual void exitExpressionList(Go2LLVMParser::ExpressionListContext *ctx) = 0;
+
+  virtual void enterOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) = 0;
+  virtual void exitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) = 0;
+
+  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
+  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
+
+  virtual void enterOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) = 0;
+  virtual void exitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) = 0;
+
+  virtual void enterOperandExp(Go2LLVMParser::OperandExpContext *ctx) = 0;
+  virtual void exitOperandExp(Go2LLVMParser::OperandExpContext *ctx) = 0;
 
   virtual void enterArguments(Go2LLVMParser::ArgumentsContext *ctx) = 0;
   virtual void exitArguments(Go2LLVMParser::ArgumentsContext *ctx) = 0;
@@ -93,9 +105,6 @@ public:
 
   virtual void enterParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx) = 0;
   virtual void exitParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx) = 0;
-
-  virtual void enterEos(Go2LLVMParser::EosContext *ctx) = 0;
-  virtual void exitEos(Go2LLVMParser::EosContext *ctx) = 0;
 
 
 };

@@ -13,28 +13,21 @@ grammar Go2LLVM;
       size_t possibleIndexEosToken = this->getCurrentToken()->getTokenIndex() - 1;
       antlr4::Token *ahead = _input->get(possibleIndexEosToken);
       if (ahead->getChannel() != antlr4::Lexer::HIDDEN) {
-          // We're only interested in tokens on the HIDDEN channel.
           return false;
       }
 
-      if (ahead->getType() == TERMINATOR) {
-          // There is definitely a line terminator ahead.
+      if (ahead->getType() == TERMINATOR)
           return true;
-      }
 
       if (ahead->getType() == WS) {
-          // Get the token ahead of the current whitespaces.
           possibleIndexEosToken = this->getCurrentToken()->getTokenIndex() - 2;
           ahead = _input->get(possibleIndexEosToken);
       }
 
-      // Get the token's text and type.
       std::string text = ahead->getText();
       size_t type = ahead->getType();
 
-      // Check if the token is, or contains a line terminator.
-      return (type == COMMENT && (text.find("\r") != std::string::npos || text.find("\n") != std::string::npos)) ||
-              (type == TERMINATOR);
+      return (type == COMMENT && (text.find("\r") != std::string::npos || text.find("\n") != std::string::npos)) || (type == TERMINATOR);
     }
 }
 
@@ -45,39 +38,27 @@ grammar Go2LLVM;
 //     * token stream a token exists on the {@code HIDDEN} channel which
 //     * either is a line terminator, or is a multi line comment that
 //     * contains a line terminator.
-//     *
-//     * @return {@code true} iff on the current index of the parser's
-//     * token stream a token exists on the {@code HIDDEN} channel which
-//     * either is a line terminator, or is a multi line comment that
-//     * contains a line terminator.
 //     */
 //    private boolean lineTerminatorAhead() {
-//        // Get the token ahead of the current index.
 //        int possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 1;
 //        Token ahead = _input.get(possibleIndexEosToken);
 //        if (ahead.getChannel() != Lexer.HIDDEN) {
-//            // We're only interested in tokens on the HIDDEN channel.
 //            return false;
 //        }
 //
 //        if (ahead.getType() == TERMINATOR) {
-//            // There is definitely a line terminator ahead.
 //            return true;
 //        }
 //
 //        if (ahead.getType() == WS) {
-//            // Get the token ahead of the current whitespaces.
 //            possibleIndexEosToken = this.getCurrentToken().getTokenIndex() - 2;
 //            ahead = _input.get(possibleIndexEosToken);
 //        }
 //
-//        // Get the token's text and type.
 //        String text = ahead.getText();
 //        int type = ahead.getType();
 //
-//        // Check if the token is, or contains a line terminator.
-//        return (type == COMMENT && (text.contains("\r") || text.contains("\n"))) ||
-//                (type == TERMINATOR);
+//        return (type == COMMENT && (text.contains("\r") || text.contains("\n"))) || (type == TERMINATOR);
 //    }
 //}
 
@@ -107,6 +88,19 @@ topLevelDecl
 block
     : BO statementList BC
     ;
+
+//Type = IDENT_TOK
+type
+    : IDENT_TOK
+    ;
+
+// EOS
+eos
+    : SEMICOLON
+    | EOF
+    | {lineTerminatorAhead()}?
+    ;
+
 
 // Statements
 //StatementList = { Statement EOS }
@@ -140,9 +134,9 @@ simpleStmt
     | emptyStmt
     ;
 
-//Assignment = expressionList [binary_op_tok] '=' expressionList
+//Assignment = identifierList [add_op | mul_op] '=' expressionList
 assignment
-    : expressionList ( BINARY_OP_TOK )? EQ expressionList
+    : identifierList ( '+' | '-' )? EQ expressionList
     ;
 
 //EmptyStmt = ";"
@@ -151,15 +145,29 @@ emptyStmt
     ;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// declarations
+// Declarations
 //Declaration = "var" IdentifierList Type ["=" ExpressionList]
 declaration
     : VAR_TOK identifierList type ( EQ expressionList )?
     ;
 
-//IdentifierList = identifier { "," identifier }
+//IdentifierList = ident_tok { "," ident_tok }
 identifierList
     : IDENT_TOK ( COMMA IDENT_TOK )*
+    ;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Expressions
+//Expression = UnaryExpr | Expression binary_op_tok Expression
+expression
+    : unaryExpr
+    | LE=expression binary_op_tok=('||' | '&&' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^') RE=expression
+    ;
+
+//UnaryExpr = unary_op_tok UnaryExpr | operand
+unaryExpr
+    : operand
+    | unary_op_tok=('+' | '-' | '!' | '^' | '*' | '&') unaryExpr
     ;
 
 //ExpressionList = Expression { "," Expression }
@@ -167,38 +175,14 @@ expressionList
     : expression ( COMMA expression )*
     ;
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// types
-//Type = IDENT_TOK
-type
-    : IDENT_TOK
-    ;
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Expressions
-//Expression = UnaryExpr | Expression binary_op_tok Expression
-expression
-    : unaryExpr
-    | expression ('||' | '&&' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^') expression
-    ;
-
-//UnaryExpr = unary_op_tok UnaryExpr | operand
-unaryExpr
-    : operand
-    | ('+'|'-'|'!'|'^'|'*'|'&') unaryExpr
-    ;
-
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Operands
 //Operand = basicLit | ident_tok | ident_tok Arguments | "(" Expression ")" .
 operand
-    : basicLit
-    | IDENT_TOK
-    | IDENT_TOK arguments
-    | PO expression PC
+    : basicLit  # operandBasicLit
+    | IDENT_TOK  # operandIdent
+    | IDENT_TOK arguments  # operandFunc
+    | PO expression PC  # operandExp
     ;
 
 //Arguments '(' [ExpressionList [',']] ')'
@@ -246,14 +230,6 @@ parameterList
 parameterDecl
     : identifierList type
     ;
-
-// EOS
-eos
-    : SEMICOLON
-    | EOF
-    | {lineTerminatorAhead()}?
-    ;
-
 
 
 
@@ -349,7 +325,7 @@ UNARY_OP_TOK
 
 //binary_op_tok = ('||' | '&&' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '+' | '-' | '|' | '^'' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')
 BINARY_OP_TOK
-    : '||' | '&&' | REL_OP | '|' | MUL_OP | UNARY_OP_TOK
+    : '||' | '&&' | REL_OP | MUL_OP | ADD_OP
     ;
 
 fragment REL_OP
@@ -369,6 +345,12 @@ fragment MUL_OP
     | '&^'
     ;
 
+fragment ADD_OP
+    : '+'
+    | '-'
+    | '|'
+    | '^'
+    ;
 
 //keywords
 PACKAGE_TOK

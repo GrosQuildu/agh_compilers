@@ -5,12 +5,12 @@ endif()
 cmake_minimum_required(VERSION 2.8.4)
 project(go_parser)
 
-
+# config stuff
 set(Java_JAVA_EXECUTABLE /usr/bin/java)
 set(ANTLR_JAR_LOCATION /home/gros/studia/eaiib_3b/kompilatory/go_parser/antlr-4.7.1-complete.jar)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+# antlr stuff
 set(go_parser-GENERATED_SRC
         ${PROJECT_SOURCE_DIR}/generated/Go2LLVMLexer.cpp
         ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParser.cpp
@@ -48,9 +48,30 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/generated
 )
 
+# llvm stuff
+find_package(LLVM REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
+include_directories(${LLVM_INCLUDE_DIRS})
+add_definitions(${LLVM_DEFINITIONS})
+
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+
+
+# main project stuff
 set(go_parser-SRC
-    ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
-    ${go_parser-GENERATED_SRC}
+        ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
+        ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.h
+        ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorTopLevel.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorStatement.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorDeclaration.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorExpression.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorOperand.cpp
+        ${PROJECT_SOURCE_DIR}/src/VisitorFunction.cpp
+        ${go_parser-GENERATED_SRC}
 )
 
 if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -78,9 +99,9 @@ endif()
 
 add_dependencies(go_parser GenerateParser)
 
-target_link_libraries(go_parser ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
+target_link_libraries(go_parser ${llvm_libs} ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
 
-#install(TARGETS go_parser
-#    DESTINATION "share"
-#    COMPONENT dev
-#)
+install(TARGETS go_parser
+    DESTINATION "./"
+    COMPONENT dev
+)

@@ -33,6 +33,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitEos(Go2LLVMParser::EosContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitStatementList(Go2LLVMParser::StatementListContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -69,14 +77,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExpressionList(Go2LLVMParser::ExpressionListContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitExpression(Go2LLVMParser::ExpressionContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -85,7 +85,23 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOperand(Go2LLVMParser::OperandContext *ctx) override {
+  virtual antlrcpp::Any visitExpressionList(Go2LLVMParser::ExpressionListContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitOperandExp(Go2LLVMParser::OperandExpContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -118,10 +134,6 @@ public:
   }
 
   virtual antlrcpp::Any visitParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitEos(Go2LLVMParser::EosContext *ctx) override {
     return visitChildren(ctx);
   }
 

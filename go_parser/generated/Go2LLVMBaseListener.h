@@ -30,6 +30,12 @@ public:
   virtual void enterBlock(Go2LLVMParser::BlockContext * /*ctx*/) override { }
   virtual void exitBlock(Go2LLVMParser::BlockContext * /*ctx*/) override { }
 
+  virtual void enterType(Go2LLVMParser::TypeContext * /*ctx*/) override { }
+  virtual void exitType(Go2LLVMParser::TypeContext * /*ctx*/) override { }
+
+  virtual void enterEos(Go2LLVMParser::EosContext * /*ctx*/) override { }
+  virtual void exitEos(Go2LLVMParser::EosContext * /*ctx*/) override { }
+
   virtual void enterStatementList(Go2LLVMParser::StatementListContext * /*ctx*/) override { }
   virtual void exitStatementList(Go2LLVMParser::StatementListContext * /*ctx*/) override { }
 
@@ -57,20 +63,26 @@ public:
   virtual void enterIdentifierList(Go2LLVMParser::IdentifierListContext * /*ctx*/) override { }
   virtual void exitIdentifierList(Go2LLVMParser::IdentifierListContext * /*ctx*/) override { }
 
-  virtual void enterExpressionList(Go2LLVMParser::ExpressionListContext * /*ctx*/) override { }
-  virtual void exitExpressionList(Go2LLVMParser::ExpressionListContext * /*ctx*/) override { }
-
-  virtual void enterType(Go2LLVMParser::TypeContext * /*ctx*/) override { }
-  virtual void exitType(Go2LLVMParser::TypeContext * /*ctx*/) override { }
-
   virtual void enterExpression(Go2LLVMParser::ExpressionContext * /*ctx*/) override { }
   virtual void exitExpression(Go2LLVMParser::ExpressionContext * /*ctx*/) override { }
 
   virtual void enterUnaryExpr(Go2LLVMParser::UnaryExprContext * /*ctx*/) override { }
   virtual void exitUnaryExpr(Go2LLVMParser::UnaryExprContext * /*ctx*/) override { }
 
-  virtual void enterOperand(Go2LLVMParser::OperandContext * /*ctx*/) override { }
-  virtual void exitOperand(Go2LLVMParser::OperandContext * /*ctx*/) override { }
+  virtual void enterExpressionList(Go2LLVMParser::ExpressionListContext * /*ctx*/) override { }
+  virtual void exitExpressionList(Go2LLVMParser::ExpressionListContext * /*ctx*/) override { }
+
+  virtual void enterOperandBasicLit(Go2LLVMParser::OperandBasicLitContext * /*ctx*/) override { }
+  virtual void exitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext * /*ctx*/) override { }
+
+  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
+  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
+
+  virtual void enterOperandFunc(Go2LLVMParser::OperandFuncContext * /*ctx*/) override { }
+  virtual void exitOperandFunc(Go2LLVMParser::OperandFuncContext * /*ctx*/) override { }
+
+  virtual void enterOperandExp(Go2LLVMParser::OperandExpContext * /*ctx*/) override { }
+  virtual void exitOperandExp(Go2LLVMParser::OperandExpContext * /*ctx*/) override { }
 
   virtual void enterArguments(Go2LLVMParser::ArgumentsContext * /*ctx*/) override { }
   virtual void exitArguments(Go2LLVMParser::ArgumentsContext * /*ctx*/) override { }
@@ -95,9 +107,6 @@ public:
 
   virtual void enterParameterDecl(Go2LLVMParser::ParameterDeclContext * /*ctx*/) override { }
   virtual void exitParameterDecl(Go2LLVMParser::ParameterDeclContext * /*ctx*/) override { }
-
-  virtual void enterEos(Go2LLVMParser::EosContext * /*ctx*/) override { }
-  virtual void exitEos(Go2LLVMParser::EosContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

@@ -28,6 +28,10 @@ public:
 
     virtual antlrcpp::Any visitBlock(Go2LLVMParser::BlockContext *context) = 0;
 
+    virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *context) = 0;
+
+    virtual antlrcpp::Any visitEos(Go2LLVMParser::EosContext *context) = 0;
+
     virtual antlrcpp::Any visitStatementList(Go2LLVMParser::StatementListContext *context) = 0;
 
     virtual antlrcpp::Any visitStatement(Go2LLVMParser::StatementContext *context) = 0;
@@ -46,15 +50,19 @@ public:
 
     virtual antlrcpp::Any visitIdentifierList(Go2LLVMParser::IdentifierListContext *context) = 0;
 
-    virtual antlrcpp::Any visitExpressionList(Go2LLVMParser::ExpressionListContext *context) = 0;
-
-    virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *context) = 0;
-
     virtual antlrcpp::Any visitExpression(Go2LLVMParser::ExpressionContext *context) = 0;
 
     virtual antlrcpp::Any visitUnaryExpr(Go2LLVMParser::UnaryExprContext *context) = 0;
 
-    virtual antlrcpp::Any visitOperand(Go2LLVMParser::OperandContext *context) = 0;
+    virtual antlrcpp::Any visitExpressionList(Go2LLVMParser::ExpressionListContext *context) = 0;
+
+    virtual antlrcpp::Any visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *context) = 0;
+
+    virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *context) = 0;
+
+    virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *context) = 0;
+
+    virtual antlrcpp::Any visitOperandExp(Go2LLVMParser::OperandExpContext *context) = 0;
 
     virtual antlrcpp::Any visitArguments(Go2LLVMParser::ArgumentsContext *context) = 0;
 
@@ -71,8 +79,6 @@ public:
     virtual antlrcpp::Any visitParameterList(Go2LLVMParser::ParameterListContext *context) = 0;
 
     virtual antlrcpp::Any visitParameterDecl(Go2LLVMParser::ParameterDeclContext *context) = 0;
-
-    virtual antlrcpp::Any visitEos(Go2LLVMParser::EosContext *context) = 0;
 
 
 };

@@ -2,3 +2,5 @@
 *.tokens
 cmake-build-debug
 tmp_tree
+llvmbuild
+llvm-6.0.0.src

@@ -1,15 +1,3 @@
-/* Copyright (c) 2012-2017 The ANTLR Project. All rights reserved.
-* Use of this file is governed by the BSD 3-clause license that
-* can be found in the LICENSE.txt file in the project root.
-*/
-
-//
-//  main.cpp
-//  antlr4-cpp-demo
-//
-//  Created by Mike Lischke on 13.03.16.
-//
-
 #include <iostream>
 #include "antlr4-runtime.h"
 #include "Go2LLVMParser.h"
@@ -18,11 +6,17 @@
 
 using namespace go_parser;
 using namespace antlr4;
+using namespace llvm;
+using antlrcpp::Any;
 
+int main(int argc, const char **argv) {
+    if(argc != 2) {
+        std::cerr << "Usage " << argv[0] << " file.go\n";
+        return 1;
+    }
 
-int main(int, const char **) {
     std::ifstream stream;
-    stream.open("test.go");
+    stream.open(argv[1]);
 
     ANTLRInputStream input(stream);
     Go2LLVMLexer lexer(&input);
@@ -38,9 +32,25 @@ int main(int, const char **) {
 
     std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-//    Go2LLVMMyVisitor visitor;
-//    Scene scene = visitor.visitFile(tree);
-//    scene.draw();
+    LLVMContext the_context;
+    IRBuilder<> builder(the_context);
+    Module *the_module = new Module("Go2LLVM module", the_context);
+
+    Go2LLVMMyVisitor visitor(the_context, builder, the_module);
+    Any AnyV = visitor.visitSourceFile(tree);
+
+    if(!visitor.parser_errors.NoErrors()) {
+        std::cout<<"Parser errors:\n";
+        visitor.parser_errors.PrintErrors();
+    }
+
+    the_module->dump();
+    for(auto const& value : visitor.named_values) {
+        value.second->dump();
+    }
+
+    the_module->getFunction("main");
+
 
     return 0;
 }
