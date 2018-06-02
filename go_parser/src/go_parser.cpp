@@ -34,23 +34,18 @@ int main(int argc, const char **argv) {
 
     LLVMContext the_context;
     IRBuilder<> builder(the_context);
-    Module *the_module = new Module("Go2LLVM module", the_context);
+    Module *module = new Module("Go2LLVM module", the_context);
 
-    Go2LLVMMyVisitor visitor(the_context, builder, the_module);
+    Go2LLVMMyVisitor visitor(the_context, builder, module);
     Any AnyV = visitor.visitSourceFile(tree);
 
     if(!visitor.parser_errors.NoErrors()) {
         std::cout<<"Parser errors:\n";
         visitor.parser_errors.PrintErrors();
+    } else {
+        verifyModule(*module);
+        module->dump();
     }
-
-    the_module->dump();
-    for(auto const& value : visitor.named_values) {
-        value.second->dump();
-    }
-
-    the_module->getFunction("main");
-
 
     return 0;
 }

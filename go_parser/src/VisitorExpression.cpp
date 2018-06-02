@@ -22,7 +22,6 @@ Any Go2LLVMMyVisitor::visitExpression(Go2LLVMParser::ExpressionContext *ctx) {
 
     } else if(ctx->LE != nullptr && ctx->RE != nullptr && ctx->binary_op_tok != nullptr){
         // Expression binary_op_tok Expression
-
         Any any_l = ctx->LE->accept(this); if(any_l.isNull()) return nullptr;
         Value* l = any_l;
 
@@ -63,7 +62,7 @@ Any Go2LLVMMyVisitor::visitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) {
         char unaryOperator = ctx->unary_op_tok->getText().c_str()[0];
         switch (unaryOperator) {
             case '+': return r;
-            case '-': return builder.CreateSub(ConstantInt::get(*the_context, APInt(32, 0)), r, "unarySub");
+            case '-': return builder.CreateSub(ConstantInt::get(context, APInt(32, 0)), r, "unarySub");
             default: return parser_errors.AddError(ctx->getStart()->getLine(), "unknown unary operator " + unaryOperator);
         }
     }
@@ -73,7 +72,7 @@ Any Go2LLVMMyVisitor::visitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) {
 
 /*
  * ExpressionList = Expression { "," Expression }
- * Return: nullptr | vector<Value *>
+ * Return: nullptr | vector<Value*>
  */
 Any Go2LLVMMyVisitor::visitExpressionList(Go2LLVMParser::ExpressionListContext *ctx) {
     parser_errors.Log("visitExpressionList: " + ctx->getText());

@@ -30,12 +30,12 @@ public:
 
     void PrintErrors() {
         for(std::string error : errors) {
-            std::cerr<<error<<"\n";
+            std::cout<<error<<"\n";
         }
     }
 
     Value* AddError(size_t line_no, std::string error) {
-        errors.push_back("Error at line " + line_no + std::string(": ") + error);
+        errors.push_back("Error at line " + std::to_string(line_no) + std::string(": ") + error);
         return nullptr;
     }
 

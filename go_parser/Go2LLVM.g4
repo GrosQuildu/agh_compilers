@@ -200,9 +200,9 @@ basicLit
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions
-//Function = func_tok ident_tok signature block
+//Function = func_tok ident_tok signature [block]
 functionDecl
-    : FUNC_TOK IDENT_TOK signature block
+    : FUNC_TOK IDENT_TOK signature block?
     ;
 
 //Signature = parameters [result]

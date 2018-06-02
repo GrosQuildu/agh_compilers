@@ -65,6 +65,7 @@ set(go_parser-SRC
         ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
         ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.h
         ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/src/MyBasicBlock.cpp
         ${PROJECT_SOURCE_DIR}/src/VisitorTopLevel.cpp
         ${PROJECT_SOURCE_DIR}/src/VisitorStatement.cpp
         ${PROJECT_SOURCE_DIR}/src/VisitorDeclaration.cpp
@@ -88,9 +89,7 @@ foreach( src_file ${go_parser-SRC} )
     )
 endforeach( src_file ${go_parser-SRC} )
 
-add_executable(go_parser
-    ${go_parser-SRC}
-)
+add_executable(go_parser ${go_parser-SRC})
 #add_precompiled_header(go_parser ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/src/antlrcpp-Prefix.h)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -101,7 +100,7 @@ add_dependencies(go_parser GenerateParser)
 
 target_link_libraries(go_parser ${llvm_libs} ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
 
-install(TARGETS go_parser
-    DESTINATION "./"
-    COMPONENT dev
-)
+
+# testing
+add_executable(testing ${PROJECT_SOURCE_DIR}/testing/testing.cpp)
+target_link_libraries(testing ${llvm_libs})

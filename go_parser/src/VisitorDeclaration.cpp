@@ -1,4 +1,5 @@
 #include "Go2LLVMMyVisitor.h"
+#include "MyBasicBlock.h"
 
 using namespace go_parser;
 using namespace llvm;
@@ -8,31 +9,41 @@ using std::vector;
 
 /*
  * Declaration = "var" IdentifierList Type ["=" ExpressionList]
- * Return: nullptr
+ * Return: nullptr | vector<Variable>
  */
 Any Go2LLVMMyVisitor::visitDeclaration(Go2LLVMParser::DeclarationContext *ctx) {
     parser_errors.Log("visitDeclaration: " + ctx->getText());
 
+    // get names and check for uniqueness
     vector<string> identifiers = ctx->identifierList()->accept(this);
+    if(std::adjacent_find(identifiers.begin(), identifiers.end()) != identifiers.end()) {
+        return parser_errors.AddError(ctx->getStart()->getLine(), "variables must be unique");
+    }
+
+    // get type
     string type = ctx->type()->accept(this);
 
+    // create variables
+    vector<Variable> variables;
+    for(string identifier : identifiers) {
+        variables.push_back(Variable(identifier, type));
+    }
+
+    // check for variables' initialization
+    vector<Value*> expressions;
     if(ctx->EQ() != nullptr && ctx->expressionList() != nullptr) {
         Any any_v = ctx->expressionList()->accept(this); if(any_v.isNull()) return nullptr;
-        vector<Value *> expressions = any_v;
+        expressions = any_v.as<vector<Value*>>();
 
         if(expressions.size() != identifiers.size())
-            return parser_errors.AddError(ctx->getStart()->getLine(), "expressions size != identifiers size");
+            return parser_errors.AddError(ctx->getStart()->getLine(), "identifiers list size != expressions list size");
 
-        for(size_t i = 0; i < identifiers.size(); i++) {
-            named_values[identifiers.at(i)] = expressions.at(i);
-        }
-    } else {
-        for(size_t i = 0; i < identifiers.size(); i++) {
-            named_values[identifiers.at(i)] = ConstantInt::get(*the_context, APInt(32, 0));
+        for(size_t i = 0; i<variables.size(); i++) {
+            variables.at(i).value = expressions.at(i);
         }
     }
 
-    return nullptr;
+    return variables;
 }
 
 /*
