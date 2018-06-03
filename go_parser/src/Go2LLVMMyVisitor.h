@@ -4,6 +4,8 @@
 #include "antlr4-runtime.h"
 #include "Go2LLVMVisitor.h"
 #include "Go2LLVMError.h"
+#include "MyBasicBlock.h"
+
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/BasicBlock.h"
@@ -15,7 +17,8 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Verifier.h"
-#include "MyBasicBlock.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Value.h"
 
 using namespace llvm;
 
@@ -58,7 +61,7 @@ namespace go_parser {
 
         /*
          * Type = IDENT_TOK
-         * Return: string - type
+         * Return: nullptr | Type*
          */
         virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *ctx);
 
@@ -194,13 +197,13 @@ namespace go_parser {
 
         /*
          * Signature = parameters [result]
-         * Return: pair<vector<Variable>, string> - identifiers (arguments) and return type
+         * Return: nullptr | pair<vector<Variable>, Type*> - arguments and return type
          */
         virtual antlrcpp::Any visitSignature(Go2LLVMParser::SignatureContext *ctx);
 
         /*
          * Result = parameters | type
-         * Return: string - type
+         * Return: nullptr | Type* - type
          */
         virtual antlrcpp::Any visitResult(Go2LLVMParser::ResultContext *ctx);
 
@@ -213,13 +216,13 @@ namespace go_parser {
 
         /*
          * ParameterList = parameterDecl { COMMA parameterDecl }
-         * Return: vector<Variable> - parameters
+         * Return: nullptr | vector<Variable> - parameters
          */
         virtual antlrcpp::Any visitParameterList(Go2LLVMParser::ParameterListContext *ctx);
 
         /*
         * ParameterDecl = identifielList type
-        * Return: pair<vector<string>, string> - identifiers and type
+        * Return: nullptr | vector<Variable> - parameters
         */
         virtual antlrcpp::Any visitParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx);
 

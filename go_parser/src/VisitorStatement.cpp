@@ -36,19 +36,17 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
                 current_block->get_named_value(variable.name);
                 parser_errors.AddError(ctx->getStart()->getLine(), "variable " + variable.name + " is already defined");
                 continue;
-            } catch(NoNamedValueException) {
-
-            }
+            } catch(NoNamedValueException) {}
 
             // Create an alloca for the variable
-            AllocaInst *alloca = builder.CreateAlloca(builder.getInt32Ty(), 0,variable.name+".addr");
+            AllocaInst *alloca = builder.CreateAlloca(variable.type, 0,variable.name+".addr");
 
             // Store the initial value into the alloca.
             if(variable.value != nullptr)
                 builder.CreateStore(variable.value, alloca);
 
             // Add variable to block's symbol table.
-            current_block->named_values[variable.name] = Variable(variable.name, "int32", alloca);
+            current_block->named_values[variable.name] = Variable(variable.name, variable.type, alloca);
         }
 
     } else if(ctx->simpleStmt() != nullptr) {

@@ -1,7 +1,8 @@
 package test;
 
-func main(x int32) int32 {
+func main() {
+    var x int32 = 5;
     var i int32 = -2;
     i = i+x;
-    return i;
+    return;
 }

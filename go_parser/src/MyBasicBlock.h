@@ -5,12 +5,16 @@
 #ifndef GO_PARSER_MYBASICBLOCK_H
 #define GO_PARSER_MYBASICBLOCK_H
 
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
+#include <llvm/IR/DerivedTypes.h>
+
 namespace go_parser {
 
     class Variable {
     public:
-        Variable(std::string name, std::string type, Value *value) : name(name), type(type), value(value) {}
-        Variable(std::string name, std::string type) : name(name), type(type), value(nullptr) {}
+        Variable(std::string name, llvm::Type *type, llvm::Value *value) : name(name), type(type), value(value) {}
+        Variable(std::string name, llvm::Type *type) : name(name), type(type), value(nullptr) {}
         Variable() {};
         Variable(const Variable &v) {
             name = v.name;
@@ -19,8 +23,18 @@ namespace go_parser {
         }
 
         std::string name;
-        std::string type;
-        Value* value;
+        llvm::Type *type;
+        llvm::Value* value;
+
+        static llvm::Type* TypeFromStr(llvm::LLVMContext &context, std::string typeStr) {
+            if(typeStr.substr(0, 3) == "int") {
+                std::string bitWidth = typeStr.substr(3);
+                llvm::IntegerType::get(context, (unsigned int)std::stoi(bitWidth));
+            } else if(typeStr == "void") {
+                return llvm::FunctionType::getVoidTy(context);
+            }
+            return llvm::IntegerType::get(context, 32);
+        }
     };
 
     class NoNamedValueException : public std::exception {
@@ -29,11 +43,11 @@ namespace go_parser {
 
     class MyBasicBlock {
     public:
-        MyBasicBlock(llvm::Function *function, llvm::BasicBlock *basicBlock) :
-                function{function}, block{basicBlock}, previous{nullptr} {}
+        MyBasicBlock(llvm::Function *function) :
+                function{function}, previous{nullptr} {}
 
-        MyBasicBlock(llvm::Function *function, llvm::BasicBlock *basicBlock, MyBasicBlock *previous) :
-                function{function}, block{basicBlock}, previous{previous} {}
+        MyBasicBlock(llvm::Function *function, MyBasicBlock *previous) :
+                function{function}, previous{previous} {}
 
         /*
          * Find Variable in named_value by the name in this block and it's parents blocks
@@ -50,7 +64,6 @@ namespace go_parser {
 
         llvm::Function *function;
         MyBasicBlock *previous;
-        llvm::BasicBlock *block;
         std::map<std::string, Variable> named_values;
     };
 

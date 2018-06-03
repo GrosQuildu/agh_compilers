@@ -21,7 +21,8 @@ Any Go2LLVMMyVisitor::visitDeclaration(Go2LLVMParser::DeclarationContext *ctx) {
     }
 
     // get type
-    string type = ctx->type()->accept(this);
+    Any any_t = ctx->type()->accept(this); if(any_t.isNull()) return nullptr;
+    Type *type = any_t;
 
     // create variables
     vector<Variable> variables;

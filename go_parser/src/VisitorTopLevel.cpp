@@ -18,12 +18,13 @@ Any Go2LLVMMyVisitor::visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) {
     // main() void
     FunctionType *funcType = FunctionType::get(builder.getVoidTy(), false);
     Function *mainFunc = Function::Create(funcType, Function::ExternalLinkage, "main", module);
-    BasicBlock *globals_initialization_block = BasicBlock::Create(context, "globals", mainFunc);
-    builder.SetInsertPoint(globals_initialization_block);
+    BasicBlock *entrypoint = BasicBlock::Create(context, "main entrypoint", mainFunc);
+    builder.SetInsertPoint(entrypoint);
 
     for(auto topLevelDecl : ctx->topLevelDecl()) {
         topLevelDecl->accept(this);
     }
+
     return std::string("done");
 }
 
@@ -70,10 +71,14 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
 
 /*
  * Type = IDENT_TOK
- * Return: string - type
+ * Return: nullptr | Type*
  */
 Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
-    return ctx->IDENT_TOK()->getText();
+    string typeStr = ctx->IDENT_TOK()->getText();
+    Type *result = Variable::TypeFromStr(context, typeStr);
+    if(!result)
+        return parser_errors.AddError(ctx->getStart()->getLine(), "wrong type: " + typeStr);
+    return result;
 }
 
 /*
@@ -86,19 +91,10 @@ Any Go2LLVMMyVisitor::visitBlock(Go2LLVMParser::BlockContext *ctx) {
     parser_errors.Log("visitBlock: " + ctx->getText());
 
     Function *current_function = builder.GetInsertBlock()->getParent();
-    BasicBlock *new_block = BasicBlock::Create(context, "new_block", current_function);
     MyBasicBlock *previous_block = current_block;
 
-    if(builder.GetInsertBlock() != current_block->block) {
-        return parser_errors.AddError(ctx->getStart()->getLine(), "block mismatch");
-    }
-
-    builder.SetInsertPoint(new_block);
-    current_block = new MyBasicBlock(current_function, new_block, previous_block);
-
+    current_block = new MyBasicBlock(current_function, previous_block);
     ctx->statementList()->accept(this);
-
-    builder.SetInsertPoint(previous_block->block);
     current_block = previous_block;
 
     return nullptr;

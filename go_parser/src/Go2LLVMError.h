@@ -6,9 +6,7 @@
 #define GO_PARSER_GO2LLVMERROR_H
 
 #include <iostream>
-#include "llvm/IR/IRBuilder.h"
-
-using llvm::Value;
+#include <llvm/IR/Value.h>
 
 class Go2LLVMError {
     std::vector<std::string> errors;
@@ -34,12 +32,12 @@ public:
         }
     }
 
-    Value* AddError(size_t line_no, std::string error) {
+    llvm::Value* AddError(size_t line_no, std::string error) {
         errors.push_back("Error at line " + std::to_string(line_no) + std::string(": ") + error);
         return nullptr;
     }
 
-    Value* AddError(std::string error) {
+    llvm::Value* AddError(std::string error) {
         errors.push_back(error);
         return nullptr;
     }
