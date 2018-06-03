@@ -13,19 +13,18 @@ using std::pair;
  * Return: nullptr | Function*
  */
 Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx) {
-    parser_errors.Log("visitFunctionDecl");
+    Go2LLVMError::Log("visitFunctionDecl");
 
     // Function name
     string function_name = ctx->IDENT_TOK()->getText();
 
     // Function signature - parameters and return types/variables
-    Any any_v = ctx->signature()->accept(this); if(any_v.isNull()) return nullptr;
-    pair<vector<Variable>, Type*> signature = any_v;
+    pair<vector<Variable>, Type*> signature = ctx->signature()->accept(this);
     vector<Variable> arguments = signature.first;
     Type *return_type = signature.second;
 
     // Make the function signature
-    vector<Type*> arg_types(arguments.size());
+    vector<Type*> arg_types;
     for(auto &variable : arguments)
         arg_types.push_back(variable.type);
     FunctionType *function_type = FunctionType::get(return_type, arg_types, false);
@@ -34,7 +33,7 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
     if(function) {
         // If function exists, check if signature it matches
         if(function->getFunctionType() != function_type) {
-            return parser_errors.AddError(ctx->getStart()->getLine(),
+            throw Go2LLVMError(ctx->getStart()->getLine(),
                                           "Function " + function_name + " redefined with different signature");
         }
     } else {
@@ -87,19 +86,13 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
  * Return: nullptr | pair<vector<Variable>, Type*> - arguments and return type
  */
 Any Go2LLVMMyVisitor::visitSignature(Go2LLVMParser::SignatureContext *ctx) {
-    parser_errors.Log("visitSignature");
+    Go2LLVMError::Log("visitSignature");
 
-    vector<Variable> parameters;
+    vector<Variable> parameters = ctx->parameters()->accept(this);
     Type* result;
 
-    Any any_v = ctx->parameters()->accept(this); if(any_v.isNull()) return nullptr;
-    parameters = any_v.as<vector<Variable>>();
-
     if(ctx->result() != nullptr) {
-        any_v = ctx->result()->accept(this);
-        if(any_v.isNull())
-            return nullptr;
-        result = any_v;
+        result = ctx->result()->accept(this);
     } else {
         result = Variable::TypeFromStr(context, "void");
     }
@@ -113,10 +106,10 @@ Any Go2LLVMMyVisitor::visitSignature(Go2LLVMParser::SignatureContext *ctx) {
  * Return: nullptr | Type* - type
  */
 Any Go2LLVMMyVisitor::visitResult(Go2LLVMParser::ResultContext *ctx) {
-    parser_errors.Log("visitResult");
+    Go2LLVMError::Log("visitResult");
 
     if(ctx->type() != nullptr) {
-        return ctx->type()->accept(this);
+        return ctx->type()->accept(this).as<Type*>();
     } else {
         // todo: handle list of params in result
         return Variable::TypeFromStr(context, "void");
@@ -128,12 +121,11 @@ Any Go2LLVMMyVisitor::visitResult(Go2LLVMParser::ResultContext *ctx) {
  * Return: nullptr | vector<Variable> - parameters
  */
 Any Go2LLVMMyVisitor::visitParameters(Go2LLVMParser::ParametersContext *ctx) {
-    parser_errors.Log("visitParameters");
+    Go2LLVMError::Log("visitParameters");
 
     vector<Variable> parameters;
     if(ctx->parameterList() != nullptr) {
-        Any any_v = ctx->parameterList()->accept(this); if(any_v.isNull()) return nullptr;
-        parameters = any_v.as<vector<Variable>>();
+        parameters = ctx->parameterList()->accept(this).as<vector<Variable>>();
     }
     return parameters;
 }
@@ -143,13 +135,14 @@ Any Go2LLVMMyVisitor::visitParameters(Go2LLVMParser::ParametersContext *ctx) {
  * Return: nullptr | vector<Variable> - parameters
  */
 Any Go2LLVMMyVisitor::visitParameterList(Go2LLVMParser::ParameterListContext *ctx) {
-    parser_errors.Log("visitParameterList");
+    Go2LLVMError::Log("visitParameterList");
 
     vector<Variable> identifiers;
-    for(auto parameterDecl : ctx->parameterDecl()) {
-        Any any_v = parameterDecl->accept(this); if(any_v.isNull()) return nullptr;
+    vector<Variable> identifiers_to_append;
 
-        vector<Variable> identifiers_to_append = any_v;
+    for(auto parameterDecl : ctx->parameterDecl()) {
+        identifiers_to_append.clear();
+        identifiers_to_append = parameterDecl->accept(this).as<vector<Variable>>();
         identifiers.insert(identifiers.end(), identifiers_to_append.begin(), identifiers_to_append.end());
     }
     return identifiers;
@@ -160,10 +153,10 @@ Any Go2LLVMMyVisitor::visitParameterList(Go2LLVMParser::ParameterListContext *ct
  * Return: nullptr | vector<Variable> - parameters
  */
 Any Go2LLVMMyVisitor::visitParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx) {
-    vector<string> identifiers = ctx->identifierList()->accept(this);
+    Go2LLVMError::Log("visitParameterDecl");
 
-    Any any_v = ctx->type()->accept(this); if(any_v.isNull()) return nullptr;
-    Type *type = any_v;
+    vector<string> identifiers = ctx->identifierList()->accept(this);
+    Type *type = ctx->type()->accept(this);
 
     vector<Variable> parameters;
     for(auto identifier : identifiers) {

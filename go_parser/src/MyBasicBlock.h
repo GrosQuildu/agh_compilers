@@ -29,17 +29,17 @@ namespace go_parser {
         static llvm::Type* TypeFromStr(llvm::LLVMContext &context, std::string typeStr) {
             if(typeStr.substr(0, 3) == "int") {
                 std::string bitWidth = typeStr.substr(3);
-                llvm::IntegerType::get(context, (unsigned int)std::stoi(bitWidth));
+                return llvm::IntegerType::get(context, (unsigned int)std::stoi(bitWidth));
             } else if(typeStr == "void") {
                 return llvm::FunctionType::getVoidTy(context);
             }
-            return llvm::IntegerType::get(context, 32);
+            return nullptr;
         }
     };
 
-    class NoNamedValueException : public std::exception {
+    class NoNamedValueException : public std::exception {};
 
-    };
+
 
     class MyBasicBlock {
     public:

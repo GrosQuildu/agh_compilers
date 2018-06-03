@@ -73,11 +73,11 @@ public:
   virtual void enterOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) = 0;
   virtual void exitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) = 0;
 
-  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
-  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
-
   virtual void enterOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) = 0;
   virtual void exitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) = 0;
+
+  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
+  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) = 0;
 
   virtual void enterOperandExp(Go2LLVMParser::OperandExpContext *ctx) = 0;
   virtual void exitOperandExp(Go2LLVMParser::OperandExpContext *ctx) = 0;

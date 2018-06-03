@@ -8,44 +8,45 @@
 #include <iostream>
 #include <llvm/IR/Value.h>
 
-class Go2LLVMError {
-    std::vector<std::string> errors;
+using std::string;
+using std::vector;
+using std::cout;
+using std::exception;
+using llvm::Value;
 
-public:
-    Go2LLVMError() {}
+namespace go_parser {
+    class Go2LLVMError : exception {
+        static std::vector<string> errors;
 
-    Go2LLVMError(std::string error) {
-        errors.push_back(error);
-    }
+    public:
+        Go2LLVMError() : exception() {}
 
-    std::vector<std::string> GetErrors() {
-        return errors;
-    }
-
-    bool NoErrors() {
-        return errors.empty();
-    }
-
-    void PrintErrors() {
-        for(std::string error : errors) {
-            std::cout<<error<<"\n";
+        Go2LLVMError(string error) : exception() {
+            errors.push_back(error);
         }
-    }
 
-    llvm::Value* AddError(size_t line_no, std::string error) {
-        errors.push_back("Error at line " + std::to_string(line_no) + std::string(": ") + error);
-        return nullptr;
-    }
+        Go2LLVMError(size_t line_no, string error) {
+            errors.push_back("Error at line " + std::to_string(line_no) + string(": ") + error);
+        }
 
-    llvm::Value* AddError(std::string error) {
-        errors.push_back(error);
-        return nullptr;
-    }
+        static vector<string> GetErrors() {
+            return errors;
+        }
 
-    void Log(std::string log) {
-        std::cout<<log<<std::endl;
-    }
-};
+        static bool NoErrors() {
+            return Go2LLVMError::errors.empty();
+        }
 
+        static void PrintErrors() {
+            for (string error : errors) {
+                cout << error << "\n";
+            }
+        }
+
+        static void Log(string log) {
+            //cout << log << std::endl;
+        }
+    };
+}
 
 #endif //GO_PARSER_GO2LLVMERROR_H

@@ -58,9 +58,9 @@ public:
 
     virtual antlrcpp::Any visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *context) = 0;
 
-    virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *context) = 0;
-
     virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *context) = 0;
+
+    virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *context) = 0;
 
     virtual antlrcpp::Any visitOperandExp(Go2LLVMParser::OperandExpContext *context) = 0;
 

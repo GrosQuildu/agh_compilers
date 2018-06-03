@@ -439,23 +439,23 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  OperandIdentContext : public OperandContext {
-  public:
-    OperandIdentContext(OperandContext *ctx);
-
-    antlr4::tree::TerminalNode *IDENT_TOK();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  OperandFuncContext : public OperandContext {
   public:
     OperandFuncContext(OperandContext *ctx);
 
     antlr4::tree::TerminalNode *IDENT_TOK();
     ArgumentsContext *arguments();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  OperandIdentContext : public OperandContext {
+  public:
+    OperandIdentContext(OperandContext *ctx);
+
+    antlr4::tree::TerminalNode *IDENT_TOK();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 

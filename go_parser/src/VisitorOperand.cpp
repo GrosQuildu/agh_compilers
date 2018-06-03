@@ -13,9 +13,8 @@ using std::pair;
  * Return: nullptr | Value*
  */
 Any Go2LLVMMyVisitor::visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) {
-    parser_errors.Log("visitOperandBasicLit: " + ctx->getText());
-    Any any_v = ctx->basicLit()->accept(this); if(any_v.isNull()) return nullptr;
-    return any_v.as<Value*>();
+    Go2LLVMError::Log("visitOperandBasicLit: " + ctx->getText());
+    return ctx->basicLit()->accept(this).as<Value*>();
 }
 
 /*
@@ -23,7 +22,7 @@ Any Go2LLVMMyVisitor::visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext
  * Return: nullptr | Value*
  */
 Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
-    parser_errors.Log("visitBasicLit: " + ctx->getText());
+    Go2LLVMError::Log("visitBasicLit: " + ctx->getText());
     if(ctx->INT_TOK() != nullptr) {
         return (Value*)ConstantInt::get(context, APInt(32, ctx->getText(), 10));
     } else if(ctx->FLOAT_TOK() != nullptr) {
@@ -34,7 +33,7 @@ Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
         return nullptr;
     }
 
-    return parser_errors.AddError(ctx->getStart()->getLine(), "unknown token " + ctx->getText());
+    throw Go2LLVMError(ctx->getStart()->getLine(), "unknown token " + ctx->getText());
 }
 
 /*
@@ -42,14 +41,14 @@ Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
  * Return: nullptr | Value*
  */
 Any Go2LLVMMyVisitor::visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) {
-    parser_errors.Log("visitOperandIdent: " + ctx->getText());
+    Go2LLVMError::Log("visitOperandIdent: " + ctx->getText());
 
     string name = ctx->IDENT_TOK()->getText();
     try {
         Value *v = current_block->get_named_value(name).value;
         return (Value*)builder.CreateLoad(v, name.c_str());
     } catch(NoNamedValueException) {
-        return parser_errors.AddError(ctx->getStart()->getLine(), "unknown variable name " + name);
+        throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + name);
     }
 }
 
@@ -58,23 +57,22 @@ Any Go2LLVMMyVisitor::visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx)
  * Return: nullptr | Value*
  */
 Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
-    parser_errors.Log("visitOperandFunc: " + ctx->getText());
+    Go2LLVMError::Log("visitOperandFunc: " + ctx->getText());
 
     // Function name
     string function_name = ctx->IDENT_TOK()->getText();
 
     // Get arguments
-    Any any_v = ctx->arguments()->accept(this); if(any_v.isNull()) return nullptr;
-    vector<Value*> arguments = any_v;
+    vector<Value*> arguments = ctx->arguments()->accept(this);
 
     // Find function
     Function *callee_function = module->getFunction(function_name);
     if (!callee_function)
-        return parser_errors.AddError(ctx->getStart()->getLine(), "Unknown function referenced: " + function_name);
+        throw Go2LLVMError(ctx->getStart()->getLine(), "Unknown function referenced: " + function_name);
 
     // If argument mismatch error.
     if (callee_function->arg_size() != arguments.size())
-        return parser_errors.AddError(ctx->getStart()->getLine(), "Incorrect number of arguments passed to " + function_name);
+        throw Go2LLVMError(ctx->getStart()->getLine(), "Incorrect number of arguments passed to " + function_name);
 
     return (Value*)builder.CreateCall(callee_function, arguments, "call_" + function_name);
 }
@@ -84,16 +82,14 @@ Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
  * Return: nullptr | vector<Value*>
  */
 Any Go2LLVMMyVisitor::visitArguments(Go2LLVMParser::ArgumentsContext *ctx) {
-    parser_errors.Log("visitArguments: " + ctx->getText());
+    Go2LLVMError::Log("visitArguments: " + ctx->getText());
 
+    vector<Value*> arguments;
     if(ctx->expressionList() != nullptr) {
-        Any any_v = ctx->expressionList()->accept(this);
-        if(any_v.isNull())
-            return nullptr;
-        return any_v.as<vector<Value*>>();
+        arguments = ctx->expressionList()->accept(this).as<vector<Value*>>();
     }
 
-    return nullptr;
+    return arguments;
 }
 
 /*
@@ -101,6 +97,5 @@ Any Go2LLVMMyVisitor::visitArguments(Go2LLVMParser::ArgumentsContext *ctx) {
  * Return: nullptr | Value*
  */
 Any Go2LLVMMyVisitor::visitOperandExp(Go2LLVMParser::OperandExpContext *ctx) {
-    Any any_v = ctx->expression()->accept(this); if(any_v.isNull()) return nullptr;
-    return any_v.as<Value*>();
+    return ctx->expression()->accept(this).as<Value*>();
 }

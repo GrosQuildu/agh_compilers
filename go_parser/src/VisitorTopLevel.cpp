@@ -12,7 +12,7 @@ using std::pair;
  * SourceFile = PackageClause Eos { TopLevelDecl Eos }
  */
 Any Go2LLVMMyVisitor::visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) {
-    parser_errors.Log("visitSourceFile: " + ctx->getText());
+    Go2LLVMError::Log("visitSourceFile: " + ctx->getText());
 
     // create main function, so we have global variables initializer block
     // main() void
@@ -35,28 +35,26 @@ Any Go2LLVMMyVisitor::visitPackageClause(Go2LLVMParser::PackageClauseContext *ct
     return visitChildren(ctx);
 }
 
-    /*
-     * TopLevelDecl = Declaration | FunctionDecl
-     * Return: nullptr
-     */
+/*
+ * TopLevelDecl = Declaration | FunctionDecl
+ * Return: nullptr
+ */
 Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx) {
-    parser_errors.Log("visitTopLevelDecl: " + ctx->getText());
+    Go2LLVMError::Log("visitTopLevelDecl: " + ctx->getText());
 
     // create global variables
     if(ctx->declaration() != nullptr) {
-        Any any_v = ctx->declaration()->accept(this);
-        if(any_v.isNotNull()) {
+        vector<Variable> variables = ctx->declaration()->accept(this);
 
-            for(Variable &variable : any_v.as<vector<Variable>>()) {
-                // create globals in the module
-                module->getOrInsertGlobal(variable.name, builder.getInt32Ty());
-                GlobalVariable *global_var = module->getGlobalVariable(variable.name);
-                global_var->setInitializer(ConstantInt::get(context, APInt(32, 0, true)));
+        for(auto &variable : variables) {
+            // create globals in the module
+            module->getOrInsertGlobal(variable.name, builder.getInt32Ty());
+            GlobalVariable *global_var = module->getGlobalVariable(variable.name);
+            global_var->setInitializer(ConstantInt::get(context, APInt(32, 0, true)));
 
-                // initialize them at the beginning of the main function
-                if(variable.value != nullptr) {
-                    builder.CreateStore(variable.value, global_var, false);
-                }
+            // initialize them at the beginning of the main function
+            if(variable.value != nullptr) {
+                builder.CreateStore(variable.value, global_var, false);
             }
         }
     }
@@ -75,10 +73,11 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
  */
 Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
     string typeStr = ctx->IDENT_TOK()->getText();
-    Type *result = Variable::TypeFromStr(context, typeStr);
-    if(!result)
-        return parser_errors.AddError(ctx->getStart()->getLine(), "wrong type: " + typeStr);
-    return result;
+    Type *type = Variable::TypeFromStr(context, typeStr);
+    if(!type)
+        throw Go2LLVMError(ctx->getStart()->getLine(), "wrong type: " + typeStr);
+
+    return type;
 }
 
 /*
@@ -88,7 +87,7 @@ Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
  * modifies builder and current_block
  */
 Any Go2LLVMMyVisitor::visitBlock(Go2LLVMParser::BlockContext *ctx) {
-    parser_errors.Log("visitBlock: " + ctx->getText());
+    Go2LLVMError::Log("visitBlock: " + ctx->getText());
 
     Function *current_function = builder.GetInsertBlock()->getParent();
     MyBasicBlock *previous_block = current_block;

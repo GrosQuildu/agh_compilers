@@ -93,11 +93,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) override {
+  virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) override {
+  virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx) override {
     return visitChildren(ctx);
   }
 

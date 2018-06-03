@@ -75,11 +75,11 @@ public:
   virtual void enterOperandBasicLit(Go2LLVMParser::OperandBasicLitContext * /*ctx*/) override { }
   virtual void exitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext * /*ctx*/) override { }
 
-  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
-  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
-
   virtual void enterOperandFunc(Go2LLVMParser::OperandFuncContext * /*ctx*/) override { }
   virtual void exitOperandFunc(Go2LLVMParser::OperandFuncContext * /*ctx*/) override { }
+
+  virtual void enterOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
+  virtual void exitOperandIdent(Go2LLVMParser::OperandIdentContext * /*ctx*/) override { }
 
   virtual void enterOperandExp(Go2LLVMParser::OperandExpContext * /*ctx*/) override { }
   virtual void exitOperandExp(Go2LLVMParser::OperandExpContext * /*ctx*/) override { }

@@ -1657,31 +1657,6 @@ antlrcpp::Any Go2LLVMParser::OperandBasicLitContext::accept(tree::ParseTreeVisit
   else
     return visitor->visitChildren(this);
 }
-//----------------- OperandIdentContext ------------------------------------------------------------------
-
-tree::TerminalNode* Go2LLVMParser::OperandIdentContext::IDENT_TOK() {
-  return getToken(Go2LLVMParser::IDENT_TOK, 0);
-}
-
-Go2LLVMParser::OperandIdentContext::OperandIdentContext(OperandContext *ctx) { copyFrom(ctx); }
-
-void Go2LLVMParser::OperandIdentContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<Go2LLVMListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterOperandIdent(this);
-}
-void Go2LLVMParser::OperandIdentContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<Go2LLVMListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitOperandIdent(this);
-}
-
-antlrcpp::Any Go2LLVMParser::OperandIdentContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<Go2LLVMVisitor*>(visitor))
-    return parserVisitor->visitOperandIdent(this);
-  else
-    return visitor->visitChildren(this);
-}
 //----------------- OperandFuncContext ------------------------------------------------------------------
 
 tree::TerminalNode* Go2LLVMParser::OperandFuncContext::IDENT_TOK() {
@@ -1708,6 +1683,31 @@ void Go2LLVMParser::OperandFuncContext::exitRule(tree::ParseTreeListener *listen
 antlrcpp::Any Go2LLVMParser::OperandFuncContext::accept(tree::ParseTreeVisitor *visitor) {
   if (auto parserVisitor = dynamic_cast<Go2LLVMVisitor*>(visitor))
     return parserVisitor->visitOperandFunc(this);
+  else
+    return visitor->visitChildren(this);
+}
+//----------------- OperandIdentContext ------------------------------------------------------------------
+
+tree::TerminalNode* Go2LLVMParser::OperandIdentContext::IDENT_TOK() {
+  return getToken(Go2LLVMParser::IDENT_TOK, 0);
+}
+
+Go2LLVMParser::OperandIdentContext::OperandIdentContext(OperandContext *ctx) { copyFrom(ctx); }
+
+void Go2LLVMParser::OperandIdentContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<Go2LLVMListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterOperandIdent(this);
+}
+void Go2LLVMParser::OperandIdentContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<Go2LLVMListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitOperandIdent(this);
+}
+
+antlrcpp::Any Go2LLVMParser::OperandIdentContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<Go2LLVMVisitor*>(visitor))
+    return parserVisitor->visitOperandIdent(this);
   else
     return visitor->visitChildren(this);
 }
@@ -1764,20 +1764,20 @@ Go2LLVMParser::OperandContext* Go2LLVMParser::operand() {
     }
 
     case 2: {
-      _localctx = dynamic_cast<OperandContext *>(_tracker.createInstance<Go2LLVMParser::OperandIdentContext>(_localctx));
+      _localctx = dynamic_cast<OperandContext *>(_tracker.createInstance<Go2LLVMParser::OperandFuncContext>(_localctx));
       enterOuterAlt(_localctx, 2);
       setState(170);
       match(Go2LLVMParser::IDENT_TOK);
+      setState(171);
+      arguments();
       break;
     }
 
     case 3: {
-      _localctx = dynamic_cast<OperandContext *>(_tracker.createInstance<Go2LLVMParser::OperandFuncContext>(_localctx));
+      _localctx = dynamic_cast<OperandContext *>(_tracker.createInstance<Go2LLVMParser::OperandIdentContext>(_localctx));
       enterOuterAlt(_localctx, 3);
-      setState(171);
-      match(Go2LLVMParser::IDENT_TOK);
       setState(172);
-      arguments();
+      match(Go2LLVMParser::IDENT_TOK);
       break;
     }
 
@@ -2653,11 +2653,11 @@ Go2LLVMParser::Initializer::Initializer() {
     0x2, 0x2, 0xa7, 0xaa, 0x3, 0x2, 0x2, 0x2, 0xa8, 0xa6, 0x3, 0x2, 0x2, 
     0x2, 0xa8, 0xa9, 0x3, 0x2, 0x2, 0x2, 0xa9, 0x25, 0x3, 0x2, 0x2, 0x2, 
     0xaa, 0xa8, 0x3, 0x2, 0x2, 0x2, 0xab, 0xb4, 0x5, 0x2a, 0x16, 0x2, 0xac, 
-    0xb4, 0x7, 0x23, 0x2, 0x2, 0xad, 0xae, 0x7, 0x23, 0x2, 0x2, 0xae, 0xb4, 
-    0x5, 0x28, 0x15, 0x2, 0xaf, 0xb0, 0x7, 0x26, 0x2, 0x2, 0xb0, 0xb1, 0x5, 
+    0xad, 0x7, 0x23, 0x2, 0x2, 0xad, 0xb4, 0x5, 0x28, 0x15, 0x2, 0xae, 0xb4, 
+    0x7, 0x23, 0x2, 0x2, 0xaf, 0xb0, 0x7, 0x26, 0x2, 0x2, 0xb0, 0xb1, 0x5, 
     0x20, 0x11, 0x2, 0xb1, 0xb2, 0x7, 0x27, 0x2, 0x2, 0xb2, 0xb4, 0x3, 0x2, 
     0x2, 0x2, 0xb3, 0xab, 0x3, 0x2, 0x2, 0x2, 0xb3, 0xac, 0x3, 0x2, 0x2, 
-    0x2, 0xb3, 0xad, 0x3, 0x2, 0x2, 0x2, 0xb3, 0xaf, 0x3, 0x2, 0x2, 0x2, 
+    0x2, 0xb3, 0xae, 0x3, 0x2, 0x2, 0x2, 0xb3, 0xaf, 0x3, 0x2, 0x2, 0x2, 
     0xb4, 0x27, 0x3, 0x2, 0x2, 0x2, 0xb5, 0xba, 0x7, 0x26, 0x2, 0x2, 0xb6, 
     0xb8, 0x5, 0x24, 0x13, 0x2, 0xb7, 0xb9, 0x7, 0x2a, 0x2, 0x2, 0xb8, 0xb7, 
     0x3, 0x2, 0x2, 0x2, 0xb8, 0xb9, 0x3, 0x2, 0x2, 0x2, 0xb9, 0xbb, 0x3, 

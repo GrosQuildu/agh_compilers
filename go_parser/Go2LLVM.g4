@@ -180,8 +180,8 @@ expressionList
 //Operand = basicLit | ident_tok | ident_tok Arguments | "(" Expression ")" .
 operand
     : basicLit  # operandBasicLit
-    | IDENT_TOK  # operandIdent
     | IDENT_TOK arguments  # operandFunc
+    | IDENT_TOK  # operandIdent
     | PO expression PC  # operandExp
     ;
 
