@@ -7,14 +7,10 @@ func puts(a *int8) int32;
 func printf(s *int8, ...) int32;
 
 
-func test1(a int32) int32 {
-    return 2+a;
-}
 
 
 func main() {
-    var i int32 = 5;
-    var x int322 = i*2;
+    var x int32 = 0x10000000;
     printf("%d\n",x);
     return;
 }

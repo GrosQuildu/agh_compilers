@@ -24,11 +24,24 @@ Any Go2LLVMMyVisitor::visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext
 Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
     Go2LLVMError::Log("visitBasicLit: " + ctx->getText());
     if(ctx->INT_TOK() != nullptr) {
-        string number = Variable::IntStrFromIntToken(ctx->getText());
 
+        string number = ctx->getText();
         // minimal amount of bits required to store this literal
-        unsigned int bit_width = 1 + 3*number.length() + ((number.length()-1)/3);
-        return (Value*)ConstantInt::get(context, APInt(bit_width, number, 10));
+        size_t bit_width;
+
+        if(number.substr(0, 2) == "0x" || number.substr(0, 2) == "0X") {
+            number = number.substr(2);
+            bit_width = 1 + number.length()*4;
+            return (Value*)ConstantInt::get(context, APInt(bit_width, number, 16));
+        } else if(number.substr(0, 1) == "0") {
+            number = number.substr(1);
+            bit_width = 1 + number.length()*3;
+            return (Value*)ConstantInt::get(context, APInt(bit_width, number, 8));
+        } else {
+            bit_width = 2 + 3*number.length() + ((number.length()-1)/3);
+            return (Value*)ConstantInt::get(context, APInt(bit_width, number, 10));
+        }
+
     } else if(ctx->FLOAT_TOK() != nullptr) {
         return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));
     } else if(ctx->IMAG_TOK() != nullptr) {

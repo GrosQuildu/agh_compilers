@@ -12,7 +12,6 @@ using llvm::Value;
 using llvm::CastInst;
 using llvm::FPToUIInst;
 using llvm::UIToFPInst;
-using llvm::Instruction;
 using llvm::IRBuilder;
 
 /* Variable */
@@ -46,11 +45,11 @@ Type* Variable::TypeFromStr(llvm::LLVMContext &context, string type_string) {
 std::string Variable::IntStrFromIntToken(std::string int_token) {
     if(int_token.substr(0, 2) == "0x" || int_token.substr(0, 2) == "0X") {
         std::stringstream ss;
-        ss << std::hex << int_token;
+        ss << std::hex << int_token.substr(2);
         return ss.str();
     } else if(int_token.substr(0,1) == "0") {
         std::stringstream ss;
-        ss << std::oct << int_token;
+        ss << std::oct << int_token.substr(1);
         return ss.str();
     } else {
         return int_token;
@@ -90,27 +89,31 @@ string TypeID2String(Type* type) {
  */
 Value* Variable::CastL2R(size_t line_no, IRBuilder<> &builder, Value *l, Type *t) {
     if(l->getType() == t)
-        return nullptr;
+        return l;
 
-    CastInst *cast_inst = nullptr;
-    if(l->getType()->isIntegerTy() && t->isIntegerTy()) {
-        cast_inst = CastInst::CreateIntegerCast(l, t, true);
-    } else if(l->getType()->isIntegerTy() && t->isFloatTy()) {
-        cast_inst = CastInst::Create(Instruction::SIToFP, l, t);
+    if(l->getType()->isIntegerTy() && t->isIntegerTy() && l->getType()->getIntegerBitWidth() > t->getIntegerBitWidth()) {
+        Go2LLVMError::AddWarning(line_no, "Casting loss bits, from " +
+                                          TypeID2String(l->getType()) + " to " +
+                                          TypeID2String(t));
     } else if(l->getType()->isFloatTy() && t->isIntegerTy()) {
-        cast_inst = CastInst::Create(Instruction::FPToSI, l, t);
+        Go2LLVMError::AddWarning(line_no, "Casting loss precision, from " +
+                                          TypeID2String(l->getType()) + " to " +
+                                          TypeID2String(t));
+    }
+
+    if(l->getType()->isIntegerTy() && t->isIntegerTy()) {
+        l = builder.CreateIntCast(l, t, true);
+    } else if(l->getType()->isIntegerTy() && t->isFloatTy()) {
+        l = builder.CreateSIToFP(l, t);
+    } else if(l->getType()->isFloatTy() && t->isIntegerTy()) {
+        l = builder.CreateFPToSI(l, t);
     } else if(l->getType()->isFloatTy() && t->isFloatTy()) {
-        cast_inst = CastInst::CreateFPCast(l, t);
+        l = builder.CreateFPCast(l, t);
     } else {
         throw Go2LLVMError(line_no, "Can't cast");
     }
 
-    if(!cast_inst->isLosslessCast()) {
-        Go2LLVMError::AddWarning(line_no, "Casting is not lossless, from " +
-                                          TypeID2String(l->getType()) + " to " +
-                                          TypeID2String(t));
-    }
-    return builder.Insert(cast_inst);
+    return l;
 };
 
 tuple<CastInst*, Value*, Value*> reverse_cast_tuple(tuple<CastInst*, Value*, Value*> p) {
