@@ -83,6 +83,10 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
+    if(!Go2LLVMError::NoWarnings()) {
+        Go2LLVMError::PrintWarnings();
+    }
+
     // Verify, dump to stdout and save to file
     verifyModule(*module);
     module->dump();

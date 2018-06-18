@@ -4,21 +4,22 @@
 #include "antlr4-runtime.h"
 #include "Go2LLVMVisitor.h"
 #include "Go2LLVMError.h"
-#include "MyBasicBlock.h"
+#include "Helpers.h"
 
-#include "llvm/ADT/APFloat.h"
-#include "llvm/ADT/STLExtras.h"
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Constants.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Type.h"
-#include "llvm/IR/Verifier.h"
-#include "llvm/IR/DerivedTypes.h"
-#include "llvm/IR/Value.h"
+#include <llvm/ADT/APFloat.h>
+#include <llvm/ADT/STLExtras.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Verifier.h>
+#include <llvm/IR/Value.h>
+#include <llvm/IR/DerivedTypes.h>
+#include <llvm/IR/InstrTypes.h>
+#include <llvm/IR/Instructions.h>
 
 using namespace llvm;
 
@@ -30,7 +31,8 @@ namespace go_parser {
         LLVMContext &context;
         IRBuilder<> &builder;
         Module *module;
-        MyBasicBlock *current_block;
+        MyBlock *current_block;
+        bool is_main_defined;
 
         Go2LLVMMyVisitor(LLVMContext&, IRBuilder<>&, Module*);
 

@@ -64,7 +64,7 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 set(go_parser-SRC
         ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
         ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.cpp
-        ${PROJECT_SOURCE_DIR}/src/MyBasicBlock.cpp
+        ${PROJECT_SOURCE_DIR}/src/Helpers.cpp
         ${PROJECT_SOURCE_DIR}/src/Go2LLVMError.cpp
         ${PROJECT_SOURCE_DIR}/src/VisitorTopLevel.cpp
         ${PROJECT_SOURCE_DIR}/src/VisitorStatement.cpp

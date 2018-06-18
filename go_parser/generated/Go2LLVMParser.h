@@ -1,5 +1,5 @@
 
-// Generated from /home/gros/studia/eaiib_3b/kompilatory/go_parser/Go2LLVM.g4 by ANTLR 4.7.1
+// Generated from Go2LLVM.g4 by ANTLR 4.7.1
 
 #pragma once
 
@@ -16,11 +16,11 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    STRING_TOK = 21, INT_TOK = 22, FLOAT_TOK = 23, IMAG_TOK = 24, UNARY_OP_TOK = 25, 
-    BINARY_OP_TOK = 26, PACKAGE_TOK = 27, VAR_TOK = 28, FUNC_TOK = 29, RETURN_TOK = 30, 
-    IF_TOK = 31, ELSE_TOK = 32, IDENT_TOK = 33, BO = 34, BC = 35, PO = 36, 
-    PC = 37, SEMICOLON = 38, EQ = 39, COMMA = 40, WS = 41, COMMENT = 42, 
-    LINE_COMMENT = 43, TERMINATOR = 44
+    T__20 = 21, STRING_TOK = 22, INT_TOK = 23, FLOAT_TOK = 24, IMAG_TOK = 25, 
+    UNARY_OP_TOK = 26, BINARY_OP_TOK = 27, PACKAGE_TOK = 28, VAR_TOK = 29, 
+    FUNC_TOK = 30, RETURN_TOK = 31, IF_TOK = 32, ELSE_TOK = 33, IDENT_TOK = 34, 
+    BO = 35, BC = 36, PO = 37, PC = 38, SEMICOLON = 39, EQ = 40, COMMA = 41, 
+    WS = 42, COMMENT = 43, LINE_COMMENT = 44, TERMINATOR = 45
   };
 
   enum {
@@ -170,6 +170,7 @@ public:
 
   class  TypeContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *ptr_tok = nullptr;;
     TypeContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *IDENT_TOK();
@@ -565,6 +566,7 @@ public:
 
   class  ParametersContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *vararg_tok = nullptr;;
     ParametersContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *PO();

@@ -24,13 +24,19 @@ Any Go2LLVMMyVisitor::visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext
 Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
     Go2LLVMError::Log("visitBasicLit: " + ctx->getText());
     if(ctx->INT_TOK() != nullptr) {
-        return (Value*)ConstantInt::get(context, APInt(32, ctx->getText(), 10));
+        string number = Variable::IntStrFromIntToken(ctx->getText());
+
+        // minimal amount of bits required to store this literal
+        unsigned int bit_width = 1 + 3*number.length() + ((number.length()-1)/3);
+        return (Value*)ConstantInt::get(context, APInt(bit_width, number, 10));
     } else if(ctx->FLOAT_TOK() != nullptr) {
         return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));
     } else if(ctx->IMAG_TOK() != nullptr) {
-        return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));
+        throw Go2LLVMError(ctx->getStart()->getLine(), "Imaginary numbers not supported: " + ctx->getText());
+        // return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));
     } else if(ctx->STRING_TOK() != nullptr) {
-        return nullptr;
+        StringRef unescaped = StringHelper::Unescape(ctx->getText());
+        return (Value*)builder.CreateGlobalStringPtr(unescaped, "global_str");
     }
 
     throw Go2LLVMError(ctx->getStart()->getLine(), "unknown token " + ctx->getText());
@@ -45,7 +51,7 @@ Any Go2LLVMMyVisitor::visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx)
 
     string name = ctx->IDENT_TOK()->getText();
     try {
-        Value *v = current_block->get_named_value(name).value;
+        Value *v = current_block->GetNamedValue(name).value;
         return (Value*)builder.CreateLoad(v, name.c_str());
     } catch(NoNamedValueException) {
         throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + name);
@@ -71,10 +77,23 @@ Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
         throw Go2LLVMError(ctx->getStart()->getLine(), "Unknown function referenced: " + function_name);
 
     // If argument mismatch error.
-    if (callee_function->arg_size() != arguments.size())
+    if (!callee_function->isVarArg() && callee_function->arg_size() != arguments.size())
         throw Go2LLVMError(ctx->getStart()->getLine(), "Incorrect number of arguments passed to " + function_name);
 
-    return (Value*)builder.CreateCall(callee_function, arguments, "call_" + function_name);
+    // Casts
+    if(!callee_function->isVarArg()) {
+        size_t i = 0;
+        vector<Value *> arguments_casted;
+        arguments_casted.reserve(arguments.size());
+        for (auto &arg : callee_function->args()) {
+            arguments_casted.push_back(
+                    Variable::CastL2R(ctx->getStart()->getLine(), builder, arguments.at(i), arg.getType()));
+            i++;
+        }
+        return (Value*)builder.CreateCall(callee_function, arguments_casted, "call_" + function_name);
+    } else {
+        return (Value*)builder.CreateCall(callee_function, arguments, "call_" + function_name);
+    }
 }
 
 /*

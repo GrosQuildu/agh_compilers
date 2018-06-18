@@ -1,5 +1,5 @@
 #include "Go2LLVMMyVisitor.h"
-#include "MyBasicBlock.h"
+#include "Helpers.h"
 
 using namespace go_parser;
 using namespace llvm;
@@ -31,7 +31,7 @@ Any Go2LLVMMyVisitor::visitDeclaration(Go2LLVMParser::DeclarationContext *ctx) {
 
     // check for variables' initialization
     if(ctx->EQ() != nullptr && ctx->expressionList() != nullptr) {
-        vector<Value*> expressions = ctx->expressionList()->accept(this);;
+        vector<Value*> expressions = ctx->expressionList()->accept(this);
 
         if(expressions.size() != identifiers.size())
             throw Go2LLVMError(ctx->getStart()->getLine(), "identifiers list size != expressions list size");

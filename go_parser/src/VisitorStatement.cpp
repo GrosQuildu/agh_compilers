@@ -33,7 +33,7 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
         for (auto &variable : variables) {
 
             try {
-                current_block->get_named_value(variable.name);
+                current_block->GetNamedValue(variable.name);
                 throw Go2LLVMError(ctx->getStart()->getLine(), "variable " + variable.name + " is already defined");
             } catch(NoNamedValueException) {}
 
@@ -41,8 +41,10 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
             AllocaInst *alloca = builder.CreateAlloca(variable.type, 0, variable.name+".addr");
 
             // Store the initial value into the alloca.
-            if(variable.value != nullptr)
+            if(variable.value != nullptr) {
+                variable.value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable.value, variable.type);
                 builder.CreateStore(variable.value, alloca);
+            }
 
             // Add variable to block's symbol table.
             current_block->named_values[variable.name] = Variable(variable.name, variable.type, alloca);
@@ -77,6 +79,7 @@ Any Go2LLVMMyVisitor::visitReturnStmt(Go2LLVMParser::ReturnStmtContext *ctx) {
 
         // for now one value is returned
         for(auto expression : expressions) {
+            expression = Variable::CastL2R(ctx->getStart()->getLine(), builder, expression, builder.getCurrentFunctionReturnType());
             builder.CreateRet(expression);
             break;
         }
@@ -122,8 +125,10 @@ Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
 
     for(size_t i = 0; i<identifiers.size(); i++) {
         try {
-            Value *v = current_block->get_named_value(identifiers.at(i)).value;
-            builder.CreateStore(assignments.at(i), v);
+            Value *variable_value = current_block->GetNamedValue(identifiers.at(i)).value;
+            Value *variable_new_value  = assignments.at(i);
+            variable_value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable_value, variable_new_value->getType());
+            builder.CreateStore(variable_new_value, variable_value);
         } catch(NoNamedValueException) {
             throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + identifiers.at(i));
         }

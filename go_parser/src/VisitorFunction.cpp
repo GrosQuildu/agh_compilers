@@ -19,15 +19,16 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
     string function_name = ctx->IDENT_TOK()->getText();
 
     // Function signature - parameters and return types/variables
-    pair<vector<Variable>, Type*> signature = ctx->signature()->accept(this);
-    vector<Variable> arguments = signature.first;
+    pair<pair<vector<Variable>, bool>, Type*> signature = ctx->signature()->accept(this);
+    vector<Variable> arguments = signature.first.first;
+    bool is_var_arg = signature.first.second;
     Type *return_type = signature.second;
 
     // Make the function signature
     vector<Type*> arg_types;
     for(auto &variable : arguments)
         arg_types.push_back(variable.type);
-    FunctionType *function_type = FunctionType::get(return_type, arg_types, false);
+    FunctionType *function_type = FunctionType::get(return_type, arg_types, is_var_arg);
 
     Function *function = module->getFunction(function_name);
     if(function) {
@@ -51,14 +52,18 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
         return function;
     }
 
-    // Make entrypoint block, main function already have entrypoint
     if(function->getName() != "main") {
+        // Make entrypoint block, main function already have entrypoint
         BasicBlock *entrypoint = BasicBlock::Create(context, function->getName() + " entrypoint", function);
         builder.SetInsertPoint(entrypoint);
+    } else {
+        // Main is defined
+        this->is_main_defined = true;
+        builder.SetInsertPoint(&function->getEntryBlock());
     }
 
     // entrypoint block will contain mutable arguments, they should be visible in whole function
-    current_block = new MyBasicBlock(function, nullptr);
+    current_block = new MyBlock(function, nullptr);
 
     // Make store instruction for arguments
     for (auto &arg : function->args()) {
@@ -83,12 +88,13 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
 
 /*
  * Signature = parameters [result]
- * Return: nullptr | pair<vector<Variable>, Type*> - arguments and return type
+ * Return: nullptr | pair<pair<vector<Variable>, bool>, Type*> - arguments and return type
  */
 Any Go2LLVMMyVisitor::visitSignature(Go2LLVMParser::SignatureContext *ctx) {
     Go2LLVMError::Log("visitSignature");
 
-    vector<Variable> parameters = ctx->parameters()->accept(this);
+    pair<vector<Variable>, bool> parameters = ctx->parameters()->accept(this);
+
     Type* result;
 
     if(ctx->result() != nullptr) {
@@ -97,8 +103,7 @@ Any Go2LLVMMyVisitor::visitSignature(Go2LLVMParser::SignatureContext *ctx) {
         result = Variable::TypeFromStr(context, "void");
     }
 
-    pair<vector<Variable>, Type*> signature = std::make_pair(parameters, result);
-    return signature;
+    return std::make_pair(parameters, result);
 }
 
 /*
@@ -117,17 +122,21 @@ Any Go2LLVMMyVisitor::visitResult(Go2LLVMParser::ResultContext *ctx) {
 }
 
 /*
- * Parameters = '(' [parameterList [',']] ')'
- * Return: nullptr | vector<Variable> - parameters
+ * Parameters = '(' [parameterList [',']] [...] ')'
+ * Return: pair<vector<Variable>, bool> - parameters and isVarArg
  */
 Any Go2LLVMMyVisitor::visitParameters(Go2LLVMParser::ParametersContext *ctx) {
     Go2LLVMError::Log("visitParameters");
+
+    bool is_var_arg = false;
+    if(ctx->vararg_tok != nullptr)
+        is_var_arg =true;
 
     vector<Variable> parameters;
     if(ctx->parameterList() != nullptr) {
         parameters = ctx->parameterList()->accept(this).as<vector<Variable>>();
     }
-    return parameters;
+    return std::make_pair(parameters, is_var_arg);
 }
 
 /*

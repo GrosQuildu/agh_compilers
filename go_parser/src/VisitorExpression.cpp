@@ -22,8 +22,9 @@ Any Go2LLVMMyVisitor::visitExpression(Go2LLVMParser::ExpressionContext *ctx) {
     } else if(ctx->LE != nullptr && ctx->RE != nullptr && ctx->binary_op_tok != nullptr){
         // Expression binary_op_tok Expression
         Value *l = ctx->LE->accept(this);
+        Value *r = ctx->RE->accept(this);
 
-        Value *r = ctx->LE->accept(this);
+        std::tie(l, r) = Variable::Cast(ctx->getStart()->getLine(), builder, l, r);
 
         char binaryOperator = ctx->binary_op_tok->getText()[0];
         switch(binaryOperator) {
@@ -52,12 +53,16 @@ Any Go2LLVMMyVisitor::visitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) {
 
     } else if(ctx->unary_op_tok != nullptr) {
         // unary_op_tok UnaryExpr
-        Value *r= ctx->unaryExpr()->accept(this);
+        Value *r = ctx->unaryExpr()->accept(this);
 
         char unaryOperator = ctx->unary_op_tok->getText().c_str()[0];
         switch (unaryOperator) {
             case '+': return r;
-            case '-': return builder.CreateSub(ConstantInt::get(context, APInt(32, 0)), r, "unarySub");
+            case '-':
+                if(r->getType()->isFloatTy())
+                    return builder.CreateSub(ConstantFP::getZeroValueForNegation(r->getType()), r, "unarySub");
+                else if(r->getType()->isIntegerTy())
+                    return builder.CreateSub(ConstantInt::get(context, APInt(r->getType()->getIntegerBitWidth(), 0)), r, "unarySub");
             default: throw Go2LLVMError(ctx->getStart()->getLine(), "unknown unary operator " + unaryOperator);
         }
     }

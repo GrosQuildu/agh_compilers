@@ -1,5 +1,5 @@
 #include "Go2LLVMMyVisitor.h"
-#include "MyBasicBlock.h"
+#include "Helpers.h"
 
 using namespace go_parser;
 using namespace llvm;
@@ -25,6 +25,10 @@ Any Go2LLVMMyVisitor::visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) {
         topLevelDecl->accept(this);
     }
 
+    if(!this->is_main_defined) {
+        throw Go2LLVMError("Main function is not defined");
+    }
+
     return std::string("done");
 }
 
@@ -48,12 +52,18 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
 
         for(auto &variable : variables) {
             // create globals in the module
-            module->getOrInsertGlobal(variable.name, builder.getInt32Ty());
+            module->getOrInsertGlobal(variable.name, variable.type);
             GlobalVariable *global_var = module->getGlobalVariable(variable.name);
-            global_var->setInitializer(ConstantInt::get(context, APInt(32, 0, true)));
+
+            // init value
+            if(global_var->getType()->isFloatTy())
+                global_var->setInitializer(ConstantFP::getZeroValueForNegation(global_var->getType()));
+            else if(global_var->getType()->isIntegerTy())
+                global_var->setInitializer(ConstantInt::get(context, APInt(global_var->getType()->getIntegerBitWidth(), 0)));
 
             // initialize them at the beginning of the main function
             if(variable.value != nullptr) {
+                variable.value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable.value, variable.type);
                 builder.CreateStore(variable.value, global_var, false);
             }
         }
@@ -77,7 +87,11 @@ Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
     if(!type)
         throw Go2LLVMError(ctx->getStart()->getLine(), "wrong type: " + typeStr);
 
-    return type;
+    if(ctx->ptr_tok != nullptr) {
+        return (Type*)llvm::PointerType::getUnqual(type);
+    } else {
+        return type;
+    }
 }
 
 /*
@@ -90,9 +104,9 @@ Any Go2LLVMMyVisitor::visitBlock(Go2LLVMParser::BlockContext *ctx) {
     Go2LLVMError::Log("visitBlock: " + ctx->getText());
 
     Function *current_function = builder.GetInsertBlock()->getParent();
-    MyBasicBlock *previous_block = current_block;
+    MyBlock *previous_block = current_block;
 
-    current_block = new MyBasicBlock(current_function, previous_block);
+    current_block = new MyBlock(current_function, previous_block);
     ctx->statementList()->accept(this);
     current_block = previous_block;
 

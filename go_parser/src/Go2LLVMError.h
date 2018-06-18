@@ -17,6 +17,7 @@ using llvm::Value;
 namespace go_parser {
     class Go2LLVMError : exception {
         static std::vector<string> errors;
+        static std::vector<string> warnings;
 
     public:
         Go2LLVMError() : exception() {}
@@ -29,12 +30,34 @@ namespace go_parser {
             errors.push_back("Error at line " + std::to_string(line_no) + string(": ") + error);
         }
 
+        static void AddWarning(string warning) {
+            warnings.push_back("Warning: " + warning);
+        }
+
+        static void AddWarning(size_t line_no, string warning) {
+            warnings.push_back("Warning at line " + std::to_string(line_no) + string(": ") + warning);
+        }
+
+        static vector<string> GetWarnings() {
+            return warnings;
+        }
+
         static vector<string> GetErrors() {
             return errors;
         }
 
+        static bool NoWarnings() {
+            return Go2LLVMError::warnings.empty();
+        }
+
         static bool NoErrors() {
             return Go2LLVMError::errors.empty();
+        }
+
+        static void PrintWarnings() {
+            for (string warning : warnings) {
+                cout << warning << "\n";
+            }
         }
 
         static void PrintErrors() {
@@ -44,7 +67,7 @@ namespace go_parser {
         }
 
         static void Log(string log) {
-            //cout << log << std::endl;
+            cout <<"Log: " << log << std::endl;
         }
     };
 }
