@@ -162,7 +162,11 @@ identifierList
 //Expression = UnaryExpr | Expression binary_op_tok Expression
 expression
     : unaryExpr
-    | LE=expression binary_op_tok=('||' | '&&' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^') RE=expression
+    | LE=expression binary_op_tok=('*' | '/' | '%' | '<<' | '>>' | '&' | '&^') RE=expression
+    | LE=expression binary_op_tok=('+' | '-' | '|' | '^') RE=expression
+    | LE=expression binary_op_tok=('==' | '!=' | '<' | '<=' | '>' | '>=') RE=expression
+    | LE=expression binary_op_tok='&&' RE=expression
+    | LE=expression binary_op_tok='||' RE=expression
     ;
 
 //UnaryExpr = unary_op_tok UnaryExpr | operand

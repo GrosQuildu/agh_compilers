@@ -43,7 +43,7 @@ Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
         }
 
     } else if(ctx->FLOAT_TOK() != nullptr) {
-        return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));
+        return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEdouble, ctx->getText()));
     } else if(ctx->IMAG_TOK() != nullptr) {
         throw Go2LLVMError(ctx->getStart()->getLine(), "Imaginary numbers not supported: " + ctx->getText());
         // return (Value*)ConstantFP::get(context, APFloat(APFloat::IEEEquad, ctx->getText()));

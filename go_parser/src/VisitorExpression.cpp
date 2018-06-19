@@ -27,13 +27,27 @@ Any Go2LLVMMyVisitor::visitExpression(Go2LLVMParser::ExpressionContext *ctx) {
         std::tie(l, r) = Variable::Cast(ctx->getStart()->getLine(), builder, l, r);
 
         char binaryOperator = ctx->binary_op_tok->getText()[0];
-        switch(binaryOperator) {
-            case '+': return builder.CreateAdd(l, r, "binaryAdd");
-            case '-': return builder.CreateSub(l, r, "binarySub");
-            case '*': return builder.CreateMul(l, r, "binaryMul");
-            case '/': return builder.CreateSDiv(l, r, "binaryDiv");
-            default: throw Go2LLVMError(ctx->getStart()->getLine(),
-                                                  "unknown unary operator " + binaryOperator);
+        if(l->getType()->isFloatingPointTy() && r->getType()->isFloatingPointTy()) {
+            switch(binaryOperator) {
+                case '+': return builder.CreateFAdd(l, r, "binaryAdd");
+                case '-': return builder.CreateFSub(l, r, "binarySub");
+                case '*': return builder.CreateFMul(l, r, "binaryMul");
+                case '/': return builder.CreateFDiv(l, r, "binaryDiv");
+                default: throw Go2LLVMError(ctx->getStart()->getLine(),
+                                            "unknown unary operator " + binaryOperator);
+            }
+        } else if(l->getType()->isIntegerTy() && r->getType()->isIntegerTy()) {
+            switch(binaryOperator) {
+                case '+': return builder.CreateAdd(l, r, "binaryAdd");
+                case '-': return builder.CreateSub(l, r, "binarySub");
+                case '*': return builder.CreateMul(l, r, "binaryMul");
+                case '/': return builder.CreateSDiv(l, r, "binaryDiv");
+                default: throw Go2LLVMError(ctx->getStart()->getLine(),
+                                            "unknown unary operator " + binaryOperator);
+            }
+        } else {
+            throw Go2LLVMError(ctx->getStart()->getLine(),
+                               "types mismatch for " + binaryOperator);
         }
     }
 
@@ -59,7 +73,7 @@ Any Go2LLVMMyVisitor::visitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx) {
         switch (unaryOperator) {
             case '+': return r;
             case '-':
-                if(r->getType()->isFloatTy())
+                if(r->getType()->isFloatingPointTy())
                     return builder.CreateSub(ConstantFP::getZeroValueForNegation(r->getType()), r, "unarySub");
                 else if(r->getType()->isIntegerTy())
                     return builder.CreateSub(ConstantInt::get(context, APInt(r->getType()->getIntegerBitWidth(), 0)), r, "unarySub");

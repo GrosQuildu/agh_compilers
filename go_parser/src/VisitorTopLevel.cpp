@@ -56,7 +56,7 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
             GlobalVariable *global_var = module->getGlobalVariable(variable.name);
 
             // init value
-            if(global_var->getType()->isFloatTy())
+            if(global_var->getType()->isFloatingPointTy())
                 global_var->setInitializer(ConstantFP::getZeroValueForNegation(global_var->getType()));
             else if(global_var->getType()->isIntegerTy())
                 global_var->setInitializer(ConstantInt::get(context, APInt(global_var->getType()->getIntegerBitWidth(), 0)));

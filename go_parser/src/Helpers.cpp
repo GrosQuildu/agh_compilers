@@ -29,9 +29,24 @@ Type* Variable::TypeFromStr(llvm::LLVMContext &context, string type_string) {
     Type *type;
     if(type_string.substr(0, 3) == "int") {
         string bitWidth = type_string.substr(3);
+        if(bitWidth.empty())
+            bitWidth = "64";
         type = Type::getIntNTy(context, (unsigned int)std::stoi(bitWidth));
-    } else if(type_string == "float") {
-        type = Type::getFloatTy(context);
+    } else if(type_string.substr(0, 5) == "float") {
+        string bitWidth = type_string.substr(5);
+        if(bitWidth.empty())
+            bitWidth = "64";
+
+        if(bitWidth == "16")
+            type = Type::getHalfTy(context);
+        else if(bitWidth == "32")
+            type = Type::getFloatTy(context);
+        else if(bitWidth == "64")
+            type = Type::getDoubleTy(context);
+        else if(bitWidth == "128")
+            type = Type::getFP128Ty(context);
+        else
+            type = Type::getDoubleTy(context);
     } else if(type_string == "string") {
         throw Go2LLVMError("Strings not implemented ;/");
     } else if(type_string == "void") {
@@ -56,7 +71,7 @@ std::string Variable::IntStrFromIntToken(std::string int_token) {
     }
 }
 
-string TypeID2String(Type* type) {
+string Type2String(Type *type) {
     static std::map<Type::TypeID, string> types_id_map = {
             {Type::VoidTyID, "VoidTyID"},
             {Type::HalfTyID, "HalfTyID"},
@@ -92,25 +107,25 @@ Value* Variable::CastL2R(size_t line_no, IRBuilder<> &builder, Value *l, Type *t
         return l;
 
     if(l->getType()->isIntegerTy() && t->isIntegerTy() && l->getType()->getIntegerBitWidth() > t->getIntegerBitWidth()) {
-        Go2LLVMError::AddWarning(line_no, "Casting loss bits, from " +
-                                          TypeID2String(l->getType()) + " to " +
-                                          TypeID2String(t));
-    } else if(l->getType()->isFloatTy() && t->isIntegerTy()) {
-        Go2LLVMError::AddWarning(line_no, "Casting loss precision, from " +
-                                          TypeID2String(l->getType()) + " to " +
-                                          TypeID2String(t));
+        Go2LLVMError::AddWarning(line_no, "Casting loses bits, from " +
+                Type2String(l->getType()) + " to " +
+                Type2String(t));
+    } else if(l->getType()->isFloatingPointTy() && t->isIntegerTy()) {
+        Go2LLVMError::AddWarning(line_no, "Casting loses precision, from " +
+                Type2String(l->getType()) + " to " +
+                Type2String(t));
     }
 
     if(l->getType()->isIntegerTy() && t->isIntegerTy()) {
         l = builder.CreateIntCast(l, t, true);
-    } else if(l->getType()->isIntegerTy() && t->isFloatTy()) {
+    } else if(l->getType()->isIntegerTy() && t->isFloatingPointTy()) {
         l = builder.CreateSIToFP(l, t);
-    } else if(l->getType()->isFloatTy() && t->isIntegerTy()) {
+    } else if(l->getType()->isFloatingPointTy() && t->isIntegerTy()) {
         l = builder.CreateFPToSI(l, t);
-    } else if(l->getType()->isFloatTy() && t->isFloatTy()) {
+    } else if(l->getType()->isFloatingPointTy() && t->isFloatingPointTy()) {
         l = builder.CreateFPCast(l, t);
     } else {
-        throw Go2LLVMError(line_no, "Can't cast");
+        throw Go2LLVMError(line_no, "Can't cast from " + Type2String(l->getType()) + " to " + Type2String(t));
     }
 
     return l;
@@ -133,17 +148,17 @@ pair<Value*, Value*> Variable::Cast(size_t line_no, IRBuilder<> &builder, Value 
         else
             l = Variable::CastL2R(line_no, builder, l, r->getType());
         return std::make_pair(l, r);
-    } else if(l->getType()->isIntegerTy() && r->getType()->isFloatTy()) {
+    } else if(l->getType()->isIntegerTy() && r->getType()->isDoubleTy()) {
         l = Variable::CastL2R(line_no, builder, l, r->getType());
         return std::make_pair(l, r);
-    } else if(l->getType()->isFloatTy() && r->getType()->isIntegerTy()) {
+    } else if(l->getType()->isFloatingPointTy() && r->getType()->isIntegerTy()) {
         r = Variable::CastL2R(line_no, builder, r, l->getType());
         return std::make_pair(l, r);
-    } else if(l->getType()->isFloatTy() && r->getType()->isFloatTy()) {
+    } else if(l->getType()->isFloatingPointTy() && r->getType()->isFloatingPointTy()) {
         l = Variable::CastL2R(line_no, builder, l, r->getType());
         return std::make_pair(l, r);
     } else {
-        throw Go2LLVMError(line_no, "Can't cast");
+        throw Go2LLVMError(line_no, "Can't cast from " + Type2String(l->getType()) + " to " + Type2String(r->getType()));
     }
 };
 

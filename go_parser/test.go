@@ -10,7 +10,8 @@ func printf(s *int8, ...) int32;
 
 
 func main() {
-    var x int32 = 0x10000000;
+    var i float = 2;
+    var x int = 2+3*3
     printf("%d\n",x);
     return;
 }
