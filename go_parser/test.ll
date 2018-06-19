@@ -1,15 +1,25 @@
 ; ModuleID = 'Go2LLVM module'
 
+@g = internal global i64 0
 @global_str = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@global_str.1 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
+@global_str.2 = private unnamed_addr constant [4 x i8] c"%d\0A\00"
 
 define void @main() {
 "main entrypoint":
-  %i.addr = alloca double
-  store double 2.000000e+00, double* %i.addr
-  %x.addr = alloca i64
-  store i64 11, i64* %x.addr
-  %x = load i64, i64* %x.addr
-  %call_printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str, i32 0, i32 0), i64 %x)
+  store i64 55, i64* @g
+  br i1 false, label %if, label %else
+
+if:                                               ; preds = %"main entrypoint"
+  %call_printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str, i32 0, i32 0), i5 1)
+  br label %ifcont
+
+else:                                             ; preds = %"main entrypoint"
+  %call_printf1 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str.1, i32 0, i32 0), i5 2)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %if
+  %call_printf2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str.2, i32 0, i32 0), i5 3)
   ret void
 }
 

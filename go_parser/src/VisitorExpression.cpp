@@ -29,10 +29,11 @@ Any Go2LLVMMyVisitor::visitExpression(Go2LLVMParser::ExpressionContext *ctx) {
         char binaryOperator = ctx->binary_op_tok->getText()[0];
         if(l->getType()->isFloatingPointTy() && r->getType()->isFloatingPointTy()) {
             switch(binaryOperator) {
-                case '+': return builder.CreateFAdd(l, r, "binaryAdd");
-                case '-': return builder.CreateFSub(l, r, "binarySub");
-                case '*': return builder.CreateFMul(l, r, "binaryMul");
-                case '/': return builder.CreateFDiv(l, r, "binaryDiv");
+                case '+': return builder.CreateFAdd(l, r, "binaryFAdd");
+                case '-': return builder.CreateFSub(l, r, "binaryFSub");
+                case '*': return builder.CreateFMul(l, r, "binaryFMul");
+                case '/': return builder.CreateFDiv(l, r, "binaryFDiv");
+                case '=': return builder.CreateFCmp(CmpInst::Predicate::FCMP_OEQ, l, r, "binaryFCmp");
                 default: throw Go2LLVMError(ctx->getStart()->getLine(),
                                             "unknown unary operator " + binaryOperator);
             }
@@ -42,6 +43,7 @@ Any Go2LLVMMyVisitor::visitExpression(Go2LLVMParser::ExpressionContext *ctx) {
                 case '-': return builder.CreateSub(l, r, "binarySub");
                 case '*': return builder.CreateMul(l, r, "binaryMul");
                 case '/': return builder.CreateSDiv(l, r, "binaryDiv");
+                case '=': return builder.CreateICmp(CmpInst::Predicate::ICMP_EQ, l, r, "binaryCmp");
                 default: throw Go2LLVMError(ctx->getStart()->getLine(),
                                             "unknown unary operator " + binaryOperator);
             }

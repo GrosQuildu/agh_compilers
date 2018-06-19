@@ -51,15 +51,18 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
         vector<Variable> variables = ctx->declaration()->accept(this);
 
         for(auto &variable : variables) {
-            // create globals in the module
-            module->getOrInsertGlobal(variable.name, variable.type);
-            GlobalVariable *global_var = module->getGlobalVariable(variable.name);
+            // global init value
+            Constant *init_val;
+            if(variable.type->isFloatingPointTy())
+                init_val = ConstantFP::getZeroValueForNegation(variable.type);
+            else if(variable.type->isIntegerTy())
+                init_val = ConstantInt::get(context, APInt(variable.type->getIntegerBitWidth(), 0));
+            else
+                throw Go2LLVMError(ctx->getStart()->getLine(), "Unknown type");
 
-            // init value
-            if(global_var->getType()->isFloatingPointTy())
-                global_var->setInitializer(ConstantFP::getZeroValueForNegation(global_var->getType()));
-            else if(global_var->getType()->isIntegerTy())
-                global_var->setInitializer(ConstantInt::get(context, APInt(global_var->getType()->getIntegerBitWidth(), 0)));
+            // create global in the module
+            GlobalVariable *global_var = new GlobalVariable(*module, variable.type, false,
+                                                            GlobalValue::LinkageTypes::InternalLinkage, init_val, variable.name);
 
             // initialize them at the beginning of the main function
             if(variable.value != nullptr) {
