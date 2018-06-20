@@ -63,7 +63,7 @@ namespace go_parser {
         /*
          * Find Variable in named_value by the name in this block and it's parents blocks
          */
-        Variable GetNamedValue(std::string value_name);
+        Variable GetNamedValue(llvm::Module *module, std::string value_name);
 
         llvm::Function *function;
         MyBlock *previous;

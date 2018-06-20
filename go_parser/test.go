@@ -10,12 +10,18 @@ var g int = 55;
 
 
 func main() {
+    printf("%d\n", g);
+    var x int;
     if 1==0 {
-        printf("%d\n",1);
+        x = 5;
+    } else if x==1 {
+        x = 6;
+    } else if x-1 == g - 56 {
+        x = 7
     } else {
-        printf("%d\n",2);
+        x = 8;
     }
-    printf("%d\n",3);
+    printf("%d\n",x);
     return;
 }
 

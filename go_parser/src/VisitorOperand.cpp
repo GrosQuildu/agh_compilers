@@ -64,7 +64,7 @@ Any Go2LLVMMyVisitor::visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx)
 
     string name = ctx->IDENT_TOK()->getText();
     try {
-        Value *v = current_block->GetNamedValue(name).value;
+        Value *v = current_block->GetNamedValue(module, name).value;
         return (Value*)builder.CreateLoad(v, name.c_str());
     } catch(NoNamedValueException) {
         throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + name);

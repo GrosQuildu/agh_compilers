@@ -33,7 +33,7 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
         for (auto &variable : variables) {
 
             try {
-                current_block->GetNamedValue(variable.name);
+                current_block->GetNamedValue(module, variable.name);
                 throw Go2LLVMError(ctx->getStart()->getLine(), "variable " + variable.name + " is already defined");
             } catch (NoNamedValueException) {}
 
@@ -48,6 +48,7 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
 
             // Add variable to block's symbol table.
             current_block->named_values[variable.name] = Variable(variable.name, variable.type, alloca);
+
         }
 
     } else if (ctx->simpleStmt() != nullptr) {
@@ -77,7 +78,10 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     BasicBlock *else_bb = BasicBlock::Create(context, "else");
     BasicBlock *merge_bb = BasicBlock::Create(context, "merge");
 
-    builder.CreateCondBr(cond_val, if_bb, else_bb);
+    if(ctx->ELSE_TOK() != nullptr)
+        builder.CreateCondBr(cond_val, if_bb, else_bb);
+    else
+        builder.CreateCondBr(cond_val, if_bb, merge_bb);
 
     // Emit if block
     builder.SetInsertPoint(if_bb);
@@ -85,12 +89,17 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     builder.CreateBr(merge_bb);
     if_bb = builder.GetInsertBlock();
 
-    // Emit else block
-    function->getBasicBlockList().push_back(else_bb);
-    builder.SetInsertPoint(else_bb);
-    ctx->block(1)->accept(this);
-    builder.CreateBr(merge_bb);
-    else_bb = builder.GetInsertBlock();
+    if(ctx->ELSE_TOK() != nullptr) {
+        // Emit else block
+        function->getBasicBlockList().push_back(else_bb);
+        builder.SetInsertPoint(else_bb);
+        if (ctx->ifStmt() != nullptr)
+            ctx->ifStmt()->accept(this);
+        else
+            ctx->block(1)->accept(this);
+        builder.CreateBr(merge_bb);
+        else_bb = builder.GetInsertBlock();
+    }
 
     // Emit merge block.
     function->getBasicBlockList().push_back(merge_bb);
@@ -151,18 +160,19 @@ Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
     Go2LLVMError::Log("visitAssignment: " + ctx->getText());
 
     vector<string> identifiers = ctx->identifierList()->accept(this);
-    vector<Value *> assignments = ctx->expressionList()->accept(this);
+    vector<Value*> assignments = ctx->expressionList()->accept(this);
 
     if (identifiers.size() != assignments.size())
         throw Go2LLVMError(ctx->getStart()->getLine(), "identifiers list size != right hand side size");
 
     for (size_t i = 0; i < identifiers.size(); i++) {
         try {
-            Value *variable_value = current_block->GetNamedValue(identifiers.at(i)).value;
+            Value *variable_ptr_value = current_block->GetNamedValue(module, identifiers.at(i)).value;
             Value *variable_new_value = assignments.at(i);
-            variable_value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable_value,
-                                               variable_new_value->getType());
-            builder.CreateStore(variable_new_value, variable_value);
+
+            variable_new_value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable_new_value,
+                                                   ((PointerType*)variable_ptr_value->getType())->getElementType());
+            builder.CreateStore(variable_new_value, variable_ptr_value);
         } catch (NoNamedValueException) {
             throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + identifiers.at(i));
         }

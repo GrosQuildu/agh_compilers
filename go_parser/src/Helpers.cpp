@@ -1,4 +1,5 @@
 #include <sstream>
+#include <llvm/IR/Module.h>
 
 #include "Helpers.h"
 #include "Go2LLVMError.h"
@@ -12,6 +13,7 @@ using llvm::Value;
 using llvm::CastInst;
 using llvm::FPToUIInst;
 using llvm::UIToFPInst;
+using llvm::Module;
 using llvm::IRBuilder;
 
 /* Variable */
@@ -246,12 +248,20 @@ llvm::StringRef StringHelper::Unescape(string str) {
 MyBlock::MyBlock(llvm::Function *function) : function{function}, previous{nullptr} {}
 MyBlock::MyBlock(llvm::Function *function, MyBlock *previous) :function{function}, previous{previous} {}
 
-Variable MyBlock::GetNamedValue(std::string value_name) {
+Variable MyBlock::GetNamedValue(Module *module, std::string value_name) {
+    // search in global variables
+    llvm::GlobalVariable * global_val = module->getGlobalVariable(value_name, true);
+    if(global_val != nullptr)
+        return Variable(global_val->getName(), global_val->getType(), global_val);
+
+    // search in current block
     if (named_values.find(value_name) != named_values.end()) {
         Variable x = named_values[value_name];
         return x;
     }
+
+    // recursively search in previous blocks
     if(previous != nullptr)
-        return previous->GetNamedValue(value_name);
+        return previous->GetNamedValue(module, value_name);
     throw NoNamedValueException();
 }
