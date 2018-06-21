@@ -39,7 +39,7 @@ inline int StringHelper::HexToInt(char c) {
         return 0;
 }
 
-llvm::StringRef StringHelper::Unescape(string str) {
+string StringHelper::Unescape(string str) {
     str = str.substr(1, str.size()-2);
     string str_unescaped;
 

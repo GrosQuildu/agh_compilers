@@ -21,7 +21,7 @@ IntegerVar::IntegerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, s
         number = number.substr(2);
         bit_width = 1 + number.length() * 4;
         value = ConstantInt::get(context, APInt(bit_width, number, 16));
-    } else if (number.substr(0, 1) == "0") {
+    } else if (number.substr(0, 1) == "0" && number.size() > 1) {
         number = number.substr(1);
         bit_width = 1 + number.length() * 3;
         value = ConstantInt::get(context, APInt(bit_width, number, 8));
@@ -110,7 +110,9 @@ BasicVar *IntegerVar::Expression(std::string op, BasicVar *var) {
     }  else if(op == "||") {
         value = builder.CreateOr(l, r, "CreateOr");
     } else {
-        throw Go2LLVMError("Unknown binary operator " + op);
+        throw Go2LLVMError(
+                "Unknown binary operator " + op + " for " + VarFactory::TypeToString(l->getType()) + " and " +
+                VarFactory::TypeToString(r->getType()));
     }
 
     this->type = value->getType();
@@ -127,7 +129,7 @@ BasicVar *IntegerVar::Expression(std::string op) {
     } else if(op == "!") {
         value = builder.CreateNeg(r, "CreateMul");
     } else {
-        throw Go2LLVMError("Unknown unary operator " + op);
+        throw Go2LLVMError("Unknown unary operator " + op + " for " + VarFactory::TypeToString(r->getType()));
     }
 
     return this;

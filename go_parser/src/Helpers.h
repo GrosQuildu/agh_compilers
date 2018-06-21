@@ -25,7 +25,7 @@ namespace go_parser {
 
         static inline int HexToInt(char c);
 
-        static llvm::StringRef Unescape(std::string str);
+        static std::string Unescape(std::string str);
     };
 
     class NoNamedValueException : public std::exception {

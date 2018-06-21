@@ -78,7 +78,9 @@ BasicVar* FloatVar::Expression(std::string op, BasicVar *var) {
     }  else if(op == ">=") {
         value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OGE, l, r, "binaryCmpFCMP_OGE");
     } else {
-        throw Go2LLVMError("Unknown binary operator " + op);
+        throw Go2LLVMError(
+                "Unknown binary operator " + op + " for " + VarFactory::TypeToString(l->getType()) + " and " +
+                VarFactory::TypeToString(r->getType()));
     }
 
     this->type = value->getType();
@@ -93,7 +95,7 @@ BasicVar* FloatVar::Expression(std::string op) {
     } else if(op == "-") {
         value = builder.CreateFSub(this->getZeroValue(), r, "unarySub");
     } else {
-        throw Go2LLVMError("Unknown unary operator " + op);
+        throw Go2LLVMError("Unknown unary operator " + op + " for " + VarFactory::TypeToString(r->getType()));
     }
 
     return this;

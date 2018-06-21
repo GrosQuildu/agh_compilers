@@ -34,7 +34,7 @@ Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
     } else if (ctx->IMAG_TOK() != nullptr) {
         throw Go2LLVMError("Imaginary numbers not supported: " + ctx->getText());
     } else if (ctx->STRING_TOK() != nullptr) {
-        StringRef unescaped = StringHelper::Unescape(ctx->getText());
+        string unescaped = StringHelper::Unescape(ctx->getText());
         Value *str = builder.CreateGlobalStringPtr(unescaped, "global_str");
         return (BasicVar *) var_factory.Get("global_str", str->getType(), str);
     } else if (ctx->BOOL_TOK() != nullptr) {

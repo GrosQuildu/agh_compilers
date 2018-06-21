@@ -30,10 +30,9 @@ Any Go2LLVMMyVisitor::visitStatementList(Go2LLVMParser::StatementListContext *ct
 Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitStatement: " + ctx->getText());
-    current_block->DumpVariables();
 
     if (ctx->declaration() != nullptr) {
-        vector<BasicVar*> variables = ctx->declaration()->accept(this);
+        vector<BasicVar *> variables = ctx->declaration()->accept(this);
         for (auto &variable : variables) {
 
             try {
@@ -42,11 +41,9 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
             } catch (NoNamedValueException) {}
 
             // Create an alloca for the variable
-            BasicBlock *current_llvm_block = builder.GetInsertBlock();
-            BasicBlock &entry_block = builder.GetInsertBlock()->getParent()->getEntryBlock();
-            builder.SetInsertPoint(&entry_block);
-            AllocaInst *alloca = builder.CreateAlloca(variable->getType(), 0, variable->name + ".addr");
-            builder.SetInsertPoint(current_llvm_block);
+            Function *function = builder.GetInsertBlock()->getParent();
+            IRBuilder<> tmp_builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+            AllocaInst *alloca = tmp_builder.CreateAlloca(variable->getType(), 0, variable->name + ".addr");
 
             // Store the initial value into the alloca.
             if (variable->getValue() != nullptr) {
@@ -88,7 +85,7 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     BasicBlock *else_bb = BasicBlock::Create(context, "else");
     BasicBlock *merge_bb = BasicBlock::Create(context, "merge");
 
-    if(ctx->ELSE_TOK() != nullptr)
+    if (ctx->ELSE_TOK() != nullptr)
         builder.CreateCondBr(cond_val_casted->getValue(), if_bb, else_bb);
     else
         builder.CreateCondBr(cond_val_casted->getValue(), if_bb, merge_bb);
@@ -99,7 +96,7 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     builder.CreateBr(merge_bb);
     if_bb = builder.GetInsertBlock();
 
-    if(ctx->ELSE_TOK() != nullptr) {
+    if (ctx->ELSE_TOK() != nullptr) {
         // Emit else block
         function->getBasicBlockList().push_back(else_bb);
         builder.SetInsertPoint(else_bb);
@@ -127,11 +124,12 @@ Any Go2LLVMMyVisitor::visitReturnStmt(Go2LLVMParser::ReturnStmtContext *ctx) {
     Go2LLVMError::Log("visitReturnStmt: " + ctx->getText());
 
     if (ctx->expressionList() != nullptr) {
-        vector<BasicVar*> expressions = ctx->expressionList()->accept(this);
+        vector<BasicVar *> expressions = ctx->expressionList()->accept(this);
 
         // for now one value is returned
         for (auto expression : expressions) {
-            BasicVar *variable = var_factory.Get("tmp_return_var", builder.getCurrentFunctionReturnType(), expression->getValue());
+            BasicVar *variable = var_factory.Get("tmp_return_var", builder.getCurrentFunctionReturnType(),
+                                                 expression->getValue());
             builder.CreateRet(variable->getValue());
             break;
         }
@@ -171,43 +169,65 @@ Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitAssignment: " + ctx->getText());
 
-    vector<BasicVar*> identifiers = ctx->expressionList(0)->accept(this);
-    vector<BasicVar*> assignments = ctx->expressionList(1)->accept(this);
+    vector<BasicVar *> identifiers = ctx->expressionList(0)->accept(this);
+    vector<BasicVar *> assignments = ctx->expressionList(1)->accept(this);
 
     if (identifiers.size() != assignments.size())
         throw Go2LLVMError("identifiers list size != right hand side size");
 
     for (size_t i = 0; i < identifiers.size(); i++) {
-        if(identifiers.at(i)->name.empty())
+        if (identifiers.at(i)->name.empty())
             throw Go2LLVMError("Variable name is empty");
+
+        BasicVar *variable_ptr_value;
         try {
-            BasicVar *variable_ptr_value = current_block->GetNamedValue(identifiers.at(i)->name);
-            if(!variable_ptr_value->getType()->isPointerTy())
-                throw Go2LLVMError("Can't assign to " + identifiers.at(i)->name + ", it's not pointer type");
-
-            if(variable_ptr_value->getType()->getContainedType(0)->isPointerTy()) {
-                // alloca with pointer
-                if(identifiers.at(i)->getType()->isPointerTy()) {
-                    // just pointer, like: var p *int; p=&x;
-                    builder.CreateStore(assignments.at(i)->getValue(), variable_ptr_value->getValue());
-                } else {
-                    // pointer dereferenced, like: var p *int; *p=3;
-                    Value *load = builder.CreateLoad(variable_ptr_value->getValue(), "load_"+variable_ptr_value->name);
-                    Type *raw_type = ((PointerType*)load->getType())->getElementType();
-                    BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
-                    builder.CreateStore(variable_new_value->getValue(), load);
-                }
-            } else {
-                // alloca with normal value, , like: var p int; p = 5;
-                Type *raw_type = ((PointerType*)variable_ptr_value->getType())->getElementType();
-                BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
-                builder.CreateStore(variable_new_value->getValue(), variable_ptr_value->getValue());
-            }
-
-
+            variable_ptr_value = current_block->GetNamedValue(identifiers.at(i)->name);
         } catch (NoNamedValueException) {
             throw Go2LLVMError("unknown variable name " + identifiers.at(i)->name);
         }
+
+        if (!variable_ptr_value->getType()->isPointerTy())
+            throw Go2LLVMError("Can't assign to " + identifiers.at(i)->name + ", it's not pointer type");
+
+
+        Value *from_value, *to_value;
+        if (variable_ptr_value->getType()->getContainedType(0)->isPointerTy()) {
+            // alloca with pointer
+            if (identifiers.at(i)->getType()->isPointerTy()) {
+                // just pointer, like: var p *int; p=&x;
+                if (assignments.at(i)->getType() !=
+                    variable_ptr_value->getType()->getContainedType(0)->getContainedType(0)) {
+                    throw Go2LLVMError("Can't assign " + VarFactory::TypeToString(assignments.at(i)->getType()) +
+                                       " to pointer " + VarFactory::TypeToString(
+                            variable_ptr_value->getType()->getContainedType(0)->getContainedType(0)));
+                }
+                from_value = assignments.at(i)->getValue();
+                to_value = variable_ptr_value->getValue();
+
+            } else {
+                // pointer dereferenced, like: var p *int; *p=3;
+                Value *load = builder.CreateLoad(variable_ptr_value->getValue(),
+                                                 "load_" + variable_ptr_value->name);
+                Type *raw_type = ((PointerType *) load->getType())->getElementType();
+                BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type,
+                                                               assignments.at(i)->getValue());
+
+                from_value = variable_new_value->getValue();
+                to_value = load;
+            }
+
+        } else {
+            // alloca with normal value, , like: var p int; p = 5;
+            Type *raw_type = ((PointerType *) variable_ptr_value->getType())->getElementType();
+            BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type,
+                                                           assignments.at(i)->getValue());
+
+            from_value = variable_new_value->getValue();
+            to_value = variable_ptr_value->getValue();
+        }
+
+        builder.CreateStore(from_value, to_value);
+
     }
 
     return nullptr;

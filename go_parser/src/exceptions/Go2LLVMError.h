@@ -48,9 +48,7 @@ namespace go_parser {
             }
         }
 
-        static void Log(string log) {
-            cout <<"Log: " << log << std::endl;
-        }
+        static void Log(string log);
     };
 }
 

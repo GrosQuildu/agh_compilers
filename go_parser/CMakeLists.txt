@@ -104,6 +104,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(go_parser PRIVATE "/MT$<$<CONFIG:Debug>:d>")
 endif()
 
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -DDEBUG=0")
 add_dependencies(go_parser GenerateParser)
 target_link_libraries(go_parser ${llvm_libs} ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
 
