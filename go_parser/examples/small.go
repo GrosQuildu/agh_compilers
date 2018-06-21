@@ -8,8 +8,9 @@ return
 }
 
 func main() {
-	var x bool = true;
-	if x {
+	var x bool = !true;
+	printf("%d\n",x)
+	if x == 0 {
 		puts("x")
 	} else {
 		puts("nope");

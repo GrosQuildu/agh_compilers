@@ -33,7 +33,7 @@ func main() {
 	var var4 float128 = 1234;
 	printf("vars: %d, %d, %f, %a\n", var1, var2, var3, var4);
 
-	var x bool = false == false;
+	var x bool = false == true;
 	if x {
 		puts("x")
 	} else {

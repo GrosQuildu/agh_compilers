@@ -75,7 +75,7 @@ BasicVar *BoolVar::Expression(std::string op) {
     Value *r = this->getValue();
 
     if (op == "!") {
-        value = builder.CreateNeg(r, "CreateMul");
+        value = builder.CreateNot(r, "CreateMul");
     } else {
         throw Go2LLVMError("Unknown unary operator " + op + " for " + VarFactory::TypeToString(r->getType()));
     }

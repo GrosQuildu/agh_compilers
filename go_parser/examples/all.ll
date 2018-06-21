@@ -56,7 +56,7 @@ define void @main() {
   %var3 = load double, double* %var3.addr
   %var4 = load fp128, fp128* %var4.addr
   %call_printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([22 x i8], [22 x i8]* @global_str.1, i32 0, i32 0), i64 %var1, i7331 %var2, double %var3, fp128 %var4)
-  store i1 true, i1* %x.addr
+  store i1 false, i1* %x.addr
   %x = load i1, i1* %x.addr
   br i1 %x, label %if, label %else
 
