@@ -53,8 +53,8 @@ func main() {
 	printf("%d\n", (1+2*341/4)%100 << 2 >> 1 & (11 | 2222 ^ 1));
 	printf("%f\n", (1.1+2*341/4)%100.2);
 
-	var z float = 10;
-	z += 2.2;
+	var z float = sin(1);
+	z += 10;
 	printf("%f\n", z);
 	puts("");
 

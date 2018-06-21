@@ -68,7 +68,12 @@ Type *VarFactory::StringToType(string type_string) {
         string bitWidth = type_string.substr(3);
         if (bitWidth.empty())
             bitWidth = "64";
-        type = Type::getIntNTy(context, (unsigned int) std::stoi(bitWidth));
+        try {
+            int bit_width_num = std::stoi(bitWidth);
+            type = Type::getIntNTy(context, (unsigned int)bit_width_num);
+        } catch(std::invalid_argument) {
+            throw Go2LLVMError("Wrong type: " + bitWidth);
+        }
     } else if (type_string.substr(0, 5) == "float") {
         string bitWidth = type_string.substr(5);
         if (bitWidth.empty())

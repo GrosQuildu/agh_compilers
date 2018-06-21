@@ -73,10 +73,11 @@ define void @main() {
   %call_puts = call i32 @puts(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_str.5, i32 0, i32 0))
   %call_printf8 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str.6, i32 0, i32 0), i15 142)
   %call_printf9 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str.7, i32 0, i32 0), double 0x4051B99999999999)
-  store double 1.000000e+01, double* %z.addr
+  %call_sin = call double @sin(double 1.000000e+00)
+  store double %call_sin, double* %z.addr
   %z = load double, double* %z.addr
   %assign_op_load = load double, double* %z.addr
-  %CreateFAdd = fadd double %assign_op_load, 2.200000e+00
+  %CreateFAdd = fadd double %assign_op_load, 1.000000e+01
   store double %CreateFAdd, double* %z.addr
   %z10 = load double, double* %z.addr
   %call_printf11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @global_str.8, i32 0, i32 0), double %z10)
