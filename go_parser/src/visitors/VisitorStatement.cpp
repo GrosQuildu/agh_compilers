@@ -30,6 +30,7 @@ Any Go2LLVMMyVisitor::visitStatementList(Go2LLVMParser::StatementListContext *ct
 Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitStatement: " + ctx->getText());
+    current_block->DumpVariables();
 
     if (ctx->declaration() != nullptr) {
         vector<BasicVar*> variables = ctx->declaration()->accept(this);
@@ -41,7 +42,11 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
             } catch (NoNamedValueException) {}
 
             // Create an alloca for the variable
+            BasicBlock *current_llvm_block = builder.GetInsertBlock();
+            BasicBlock &entry_block = builder.GetInsertBlock()->getParent()->getEntryBlock();
+            builder.SetInsertPoint(&entry_block);
             AllocaInst *alloca = builder.CreateAlloca(variable->getType(), 0, variable->name + ".addr");
+            builder.SetInsertPoint(current_llvm_block);
 
             // Store the initial value into the alloca.
             if (variable->getValue() != nullptr) {
@@ -165,20 +170,42 @@ Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitAssignment: " + ctx->getText());
 
-    vector<string> identifiers = ctx->identifierList()->accept(this);
-    vector<BasicVar*> assignments = ctx->expressionList()->accept(this);
+    vector<BasicVar*> identifiers = ctx->expressionList(0)->accept(this);
+    vector<BasicVar*> assignments = ctx->expressionList(1)->accept(this);
 
     if (identifiers.size() != assignments.size())
         throw Go2LLVMError("identifiers list size != right hand side size");
 
     for (size_t i = 0; i < identifiers.size(); i++) {
+        if(identifiers.at(i)->name.empty())
+            throw Go2LLVMError("Variable name is empty");
         try {
-            BasicVar *variable_ptr_value = current_block->GetNamedValue(identifiers.at(i));
-            Type *raw_type = ((PointerType*)variable_ptr_value->getType())->getElementType();
-            BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
-            builder.CreateStore(variable_new_value->getValue(), variable_ptr_value->getValue());
+            BasicVar *variable_ptr_value = current_block->GetNamedValue(identifiers.at(i)->name);
+            if(!variable_ptr_value->getType()->isPointerTy())
+                throw Go2LLVMError("Can't assign to " + identifiers.at(i)->name + ", it's not pointer type");
+
+            if(variable_ptr_value->getType()->getContainedType(0)->isPointerTy()) {
+                // alloca with pointer
+                if(identifiers.at(i)->getType()->isPointerTy()) {
+                    // just pointer, like: var p *int; p=&x;
+                    builder.CreateStore(assignments.at(i)->getValue(), variable_ptr_value->getValue());
+                } else {
+                    // pointer dereferenced, like: var p *int; *p=3;
+                    Value *load = builder.CreateLoad(variable_ptr_value->getValue(), "load_"+variable_ptr_value->name);
+                    Type *raw_type = ((PointerType*)load->getType())->getElementType();
+                    BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
+                    builder.CreateStore(variable_new_value->getValue(), load);
+                }
+            } else {
+                // alloca with normal value, , like: var p int; p = 5;
+                Type *raw_type = ((PointerType*)variable_ptr_value->getType())->getElementType();
+                BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
+                builder.CreateStore(variable_new_value->getValue(), variable_ptr_value->getValue());
+            }
+
+
         } catch (NoNamedValueException) {
-            throw Go2LLVMError("unknown variable name " + identifiers.at(i));
+            throw Go2LLVMError("unknown variable name " + identifiers.at(i)->name);
         }
     }
 

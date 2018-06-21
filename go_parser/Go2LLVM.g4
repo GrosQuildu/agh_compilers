@@ -137,7 +137,7 @@ simpleStmt
 
 //Assignment = identifierList [add_op | mul_op] '=' expressionList
 assignment
-    : identifierList ( '+' | '-' )? EQ expressionList
+    : expressionList ('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')? EQ expressionList
     ;
 
 //EmptyStmt = ";"
@@ -172,7 +172,9 @@ expression
 //UnaryExpr = unary_op_tok UnaryExpr | operand
 unaryExpr
     : operand
-    | unary_op_tok=('+' | '-' | '!' | '^' | '*' | '&') unaryExpr
+    | addr_tok='&' IDENT_TOK
+    | dereference_tok='*' IDENT_TOK
+    | unary_op_tok=('+' | '-' | '!' | '^') unaryExpr
     ;
 
 //ExpressionList = Expression { "," Expression }
@@ -391,7 +393,7 @@ ELSE_TOK
     : 'else'
     ;
 
-//ident_tok = (a..z | _) {(a..z | _) | (0..9)}
+//ident_tok =  (a..z | _) {(a..z | _) | (0..9)}
 IDENT_TOK
     : LETTER ( LETTER | DECIMAL_DIGIT )*
     ;

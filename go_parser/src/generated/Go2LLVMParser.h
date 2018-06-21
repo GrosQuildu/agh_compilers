@@ -296,9 +296,9 @@ public:
   public:
     AssignmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    IdentifierListContext *identifierList();
+    std::vector<ExpressionListContext *> expressionList();
+    ExpressionListContext* expressionList(size_t i);
     antlr4::tree::TerminalNode *EQ();
-    ExpressionListContext *expressionList();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -383,10 +383,13 @@ public:
   ExpressionContext* expression(int precedence);
   class  UnaryExprContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *addr_tok = nullptr;;
+    antlr4::Token *dereference_tok = nullptr;;
     antlr4::Token *unary_op_tok = nullptr;;
     UnaryExprContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     OperandContext *operand();
+    antlr4::tree::TerminalNode *IDENT_TOK();
     UnaryExprContext *unaryExpr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

@@ -3,6 +3,7 @@
 #include "FloatVar.h"
 #include "../exceptions/Go2LLVMError.h"
 #include "PointerVar.h"
+#include "VoidVar.h"
 
 using namespace go_parser;
 
@@ -38,6 +39,8 @@ BasicVar *VarFactory::Get(std::string name, llvm::Type *type) {
         return new IntegerVar(context, builder, name, type);
     else if (type->isPointerTy())
         return new PointerVar(context, builder, name, type);
+    else if (type->isVoidTy())
+        return new VoidVar(context, builder, name, type);
     throw Go2LLVMError("Unknown type: " + VarFactory::TypeToString(type));
 }
 
@@ -85,6 +88,13 @@ Type *VarFactory::StringToType(string type_string) {
     return type;
 }
 
+string inline PointerTypeToString(llvm::PointerType *type) {
+    return VarFactory::TypeToString(type->getContainedType(0));
+}
+
+string inline IntegerTypeToString(llvm::IntegerType *type) {
+    return std::to_string(type->getIntegerBitWidth()) + " bits";
+}
 
 string VarFactory::TypeToString(Type *type) {
     static std::map<Type::TypeID, string> types_id_map = {
@@ -108,9 +118,14 @@ string VarFactory::TypeToString(Type *type) {
     };
     string result = types_id_map.at(type->getTypeID());
 
-    if (type->isIntegerTy()) {
-        result += " (" + std::to_string(type->getIntegerBitWidth()) + " bits)";
+    if (type->isPointerTy()) {
+        result += "(" + PointerTypeToString((llvm::PointerType*)type) + ")";
     }
+
+    if (type->isIntegerTy()) {
+        result += "(" + IntegerTypeToString((llvm::IntegerType*)type) + ")";
+    }
+
     return result;
 }
 

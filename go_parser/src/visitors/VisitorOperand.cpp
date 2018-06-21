@@ -16,7 +16,7 @@ using std::pair;
  */
 Any Go2LLVMMyVisitor::visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx) {
     Go2LLVMError::Log("visitOperandBasicLit: " + ctx->getText());
-    return ctx->basicLit()->accept(this).as<BasicVar*>();
+    return ctx->basicLit()->accept(this).as<BasicVar *>();
 }
 
 /*
@@ -27,16 +27,16 @@ Any Go2LLVMMyVisitor::visitBasicLit(Go2LLVMParser::BasicLitContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitBasicLit: " + ctx->getText());
 
-    if(ctx->INT_TOK() != nullptr) {
-        return (BasicVar*)var_factory.Get("IntegerVar", ctx->getText());
-    } else if(ctx->FLOAT_TOK() != nullptr) {
-        return (BasicVar*)var_factory.Get("FloatVar", ctx->getText());
-    } else if(ctx->IMAG_TOK() != nullptr) {
+    if (ctx->INT_TOK() != nullptr) {
+        return (BasicVar *) var_factory.Get("IntegerVar", ctx->getText());
+    } else if (ctx->FLOAT_TOK() != nullptr) {
+        return (BasicVar *) var_factory.Get("FloatVar", ctx->getText());
+    } else if (ctx->IMAG_TOK() != nullptr) {
         throw Go2LLVMError("Imaginary numbers not supported: " + ctx->getText());
-    } else if(ctx->STRING_TOK() != nullptr) {
+    } else if (ctx->STRING_TOK() != nullptr) {
         StringRef unescaped = StringHelper::Unescape(ctx->getText());
         Value *str = builder.CreateGlobalStringPtr(unescaped, "global_str");
-        return (BasicVar*)var_factory.Get("global_str", str->getType(), str);
+        return (BasicVar *) var_factory.Get("global_str", str->getType(), str);
     }
 
     throw Go2LLVMError("unknown token " + ctx->getText());
@@ -53,10 +53,10 @@ Any Go2LLVMMyVisitor::visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx)
     string name = ctx->IDENT_TOK()->getText();
     try {
         BasicVar *variable_ptr_value = current_block->GetNamedValue(name);
-        Type *raw_type = ((PointerType*)variable_ptr_value->getType())->getElementType();
+        Type *raw_type = ((PointerType *) variable_ptr_value->getType())->getElementType();
         LoadInst *load = builder.CreateLoad(variable_ptr_value->getValue(), name.c_str());
-        return var_factory.Get("load_"+variable_ptr_value->name, raw_type, load);
-    } catch(NoNamedValueException) {
+        return var_factory.Get(variable_ptr_value->name, load->getType(), load);
+    } catch (NoNamedValueException) {
         throw Go2LLVMError("unknown variable name " + name);
     }
 }
@@ -73,7 +73,7 @@ Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
     string function_name = ctx->IDENT_TOK()->getText();
 
     // Get arguments
-    vector<BasicVar*> arguments = ctx->arguments()->accept(this);
+    vector<BasicVar *> arguments = ctx->arguments()->accept(this);
 
     // Find function
     Function *callee_function = module->getFunction(function_name);
@@ -85,14 +85,15 @@ Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
         throw Go2LLVMError("Incorrect number of arguments passed to " + function_name);
 
     // Casts
-    vector<Value*> arguments_casted;
+    vector<Value *> arguments_casted;
     arguments_casted.reserve(arguments.size());
     Value *call;
 
-    if(!callee_function->isVarArg()) {
+    if (!callee_function->isVarArg()) {
         size_t i = 0;
         for (auto &arg : callee_function->args()) {
-            arguments_casted.push_back( var_factory.Get("argVar", arg.getType(), arguments.at(i)->getValue())->getValue() );
+            arguments_casted.push_back(
+                    var_factory.Get("argVar", arg.getType(), arguments.at(i)->getValue())->getValue());
             i++;
         }
     } else {
@@ -101,7 +102,11 @@ Any Go2LLVMMyVisitor::visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx) {
         }
     }
 
-    call = builder.CreateCall(callee_function, arguments_casted, "call_" + function_name);
+
+    if (callee_function->getReturnType()->isVoidTy())
+        call = builder.CreateCall(callee_function, arguments_casted);
+    else
+        call = builder.CreateCall(callee_function, arguments_casted, "call_" + function_name);
     return var_factory.Get(call->getName(), call->getType(), call);
 }
 
@@ -113,9 +118,9 @@ Any Go2LLVMMyVisitor::visitArguments(Go2LLVMParser::ArgumentsContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitArguments: " + ctx->getText());
 
-    vector<BasicVar*> arguments;
-    if(ctx->expressionList() != nullptr) {
-        arguments = ctx->expressionList()->accept(this).as<vector<BasicVar*>>();
+    vector<BasicVar *> arguments;
+    if (ctx->expressionList() != nullptr) {
+        arguments = ctx->expressionList()->accept(this).as<vector<BasicVar *>>();
     }
 
     return arguments;
@@ -126,5 +131,5 @@ Any Go2LLVMMyVisitor::visitArguments(Go2LLVMParser::ArgumentsContext *ctx) {
  * Return: BasicVar*
  */
 Any Go2LLVMMyVisitor::visitOperandExp(Go2LLVMParser::OperandExpContext *ctx) {
-    return ctx->expression()->accept(this).as<BasicVar*>();
+    return ctx->expression()->accept(this).as<BasicVar *>();
 }

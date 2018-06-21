@@ -17,11 +17,11 @@ using llvm::Module;
 using llvm::IRBuilder;
 
 BasicVar::BasicVar(llvm::LLVMContext &context, IRBuilder<> &builder) :
-        builder(builder), context(context) {
+        builder(builder), context(context), type(nullptr), value(nullptr) {
 }
 
 BasicVar::BasicVar(llvm::LLVMContext &context, IRBuilder<> &builder, const string &name, Type *type) :
-        name(name), type(type), builder(builder), context(context) {
+        name(name), type(type), builder(builder), context(context), value(nullptr) {
 }
 
 void BasicVar::setValue(llvm::Value *value) {

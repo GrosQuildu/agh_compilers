@@ -41,6 +41,7 @@ namespace go_parser {
          * Find Variable in named_value by the name in this block and it's parents blocks
          */
         BasicVar* GetNamedValue(std::string value_name);
+        void DumpVariables();
 
         MyBlock *previous;
         std::map<std::string, BasicVar*> named_values;

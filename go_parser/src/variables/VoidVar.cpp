@@ -1,4 +1,4 @@
-#include "PointerVar.h"
+#include "VoidVar.h"
 #include "VarFactory.h"
 #include "../exceptions/Go2LLVMError.h"
 #include "../exceptions/Go2LLVMWarning.h"
@@ -10,10 +10,10 @@ using llvm::Constant;
 using llvm::APInt;
 using llvm::CmpInst;
 
-PointerVar::PointerVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+VoidVar::VoidVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
                        const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {}
 
-llvm::Value *PointerVar::Cast(llvm::Value *l) {
+llvm::Value *VoidVar::Cast(llvm::Value *l) {
     if (l->getType() == type)
         return l;
 
@@ -21,14 +21,14 @@ llvm::Value *PointerVar::Cast(llvm::Value *l) {
                        VarFactory::TypeToString(this->getType()));
 }
 
-Constant *PointerVar::getZeroValue() {
+Constant *VoidVar::getZeroValue() {
     return llvm::ConstantPointerNull::get((llvm::PointerType *) getValue()->getType());
 }
 
-BasicVar *PointerVar::Expression(std::string op, BasicVar *var) {
+BasicVar *VoidVar::Expression(std::string op, BasicVar *var) {
     throw Go2LLVMError("Expressions with pointers not allowed");
 }
 
-BasicVar *PointerVar::Expression(std::string op) {
+BasicVar *VoidVar::Expression(std::string op) {
     throw Go2LLVMError("Expressions with pointers not allowed");
 }

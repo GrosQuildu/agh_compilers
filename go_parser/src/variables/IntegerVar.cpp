@@ -9,6 +9,8 @@ using llvm::ConstantInt;
 using llvm::Constant;
 using llvm::APInt;
 using llvm::CmpInst;
+using llvm::GetElementPtrInst;
+
 
 IntegerVar::IntegerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, std::string number) : BasicVar(context,
                                                                                                               builder) {
@@ -61,23 +63,27 @@ llvm::Value *IntegerVar::Cast(llvm::Value *l) {
     return l;
 }
 
-Constant* IntegerVar::getZeroValue() {
+Constant *IntegerVar::getZeroValue() {
     return ConstantInt::get(context, APInt(type->getIntegerBitWidth(), 0));
 }
 
-BasicVar* IntegerVar::Expression(std::string op, BasicVar *var) {
+BasicVar *IntegerVar::Expression(std::string op, BasicVar *var) {
     Value *l = this->getValue();
     Value *r = var->getValue();
 
     switch (op[0]) {
         case '+':
-            value = builder.CreateAdd(l, r, "binaryAdd"); break;
+            value = builder.CreateAdd(l, r, "binaryAdd");
+            break;
         case '-':
-            value = builder.CreateSub(l, r, "binarySub"); break;
+            value = builder.CreateSub(l, r, "binarySub");
+            break;
         case '*':
-            value = builder.CreateMul(l, r, "binaryMul"); break;
+            value = builder.CreateMul(l, r, "binaryMul");
+            break;
         case '/':
-            value = builder.CreateSDiv(l, r, "binaryDiv"); break;
+            value = builder.CreateSDiv(l, r, "binaryDiv");
+            break;
         case '=':
             value = builder.CreateICmp(CmpInst::Predicate::ICMP_EQ, l, r, "binaryCmp");
         default:
@@ -87,14 +93,16 @@ BasicVar* IntegerVar::Expression(std::string op, BasicVar *var) {
     return this;
 }
 
-BasicVar* IntegerVar::Expression(std::string op) {
+BasicVar *IntegerVar::Expression(std::string op) {
     Value *r = this->getValue();
 
     switch (op[0]) {
         case '+':
-            value = r; break;
+            value = r;
+            break;
         case '-':
-            value = builder.CreateSub(this->getZeroValue(), r, "unarySub"); break;
+            value = builder.CreateSub(this->getZeroValue(), r, "unarySub");
+            break;
         default:
             throw Go2LLVMError("Unknown unary operator " + op);
     }

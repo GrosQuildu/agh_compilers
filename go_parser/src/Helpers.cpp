@@ -3,6 +3,7 @@
 
 #include "Helpers.h"
 #include "exceptions/Go2LLVMError.h"
+#include "variables/VarFactory.h"
 
 using namespace go_parser;
 using std::string;
@@ -100,6 +101,17 @@ llvm::StringRef StringHelper::Unescape(string str) {
 /* Helpers */
 MyBlock::MyBlock() : previous{nullptr} {}
 MyBlock::MyBlock(MyBlock *previous) : previous{previous} {}
+
+void MyBlock::DumpVariables() {
+    string result = "";
+    for(auto &named_value : named_values) {
+        cout<<named_value.second->name<<": ";
+        named_value.second->getValue()->dump();
+        cout<<"\n";
+    }
+    if(this->previous != nullptr)
+        this->previous->DumpVariables();
+}
 
 BasicVar* MyBlock::GetNamedValue(std::string value_name) {
     // search in current block

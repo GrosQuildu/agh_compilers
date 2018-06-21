@@ -2,16 +2,16 @@
 // Created by gros on 21.06.18.
 //
 
-#ifndef GO_PARSER_POINTERVAR_H
-#define GO_PARSER_POINTERVAR_H
+#ifndef GO_PARSER_VARVOID_H
+#define GO_PARSER_VARVOID_H
 
 #include "BasicVar.h"
 
 namespace go_parser {
-    class PointerVar : public BasicVar {
+    class VoidVar : public BasicVar {
     public:
 
-        PointerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, const std::string &name,
+        VoidVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, const std::string &name,
                    llvm::Type *type);
 
         BasicVar* Expression(std::string op, BasicVar *var) override;
@@ -24,4 +24,4 @@ namespace go_parser {
     };
 }
 
-#endif //GO_PARSER_POINTERVAR_H
+#endif //GO_PARSER_VARVOID_H

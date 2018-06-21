@@ -74,7 +74,7 @@ Any Go2LLVMMyVisitor::visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx)
         builder.CreateStore(&arg, alloca);
 
         // Add arguments to variable symbol table.
-        current_block->named_values[arg.getName()] = var_factory.Get(arg.getName(), arg.getType(), alloca);
+        current_block->named_values[arg.getName()] = var_factory.Get(arg.getName(), alloca->getType(), alloca);
     }
 
     // Make body
