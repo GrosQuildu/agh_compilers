@@ -12,32 +12,10 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IRBuilder.h>
 #include <map>
+#include "variables/BasicVar.h"
 
 
 namespace go_parser {
-
-    class Variable {
-    public:
-        Variable(std::string name, llvm::Type *type, llvm::Value *value);
-
-        Variable(std::string name, llvm::Type *type);
-
-        Variable();
-
-        Variable(const Variable &v);
-
-        std::string name;
-        llvm::Type *type;
-        llvm::Value *value;
-
-        static llvm::Type *TypeFromStr(llvm::LLVMContext &context, std::string type_string);
-
-        static std::string IntStrFromIntToken(std::string int_token);
-
-        static llvm::Value* CastL2R(size_t line_no, llvm::IRBuilder<> &builder, llvm::Value *l, llvm::Type *t);
-
-        static std::pair<llvm::Value*, llvm::Value*> Cast(size_t line_no, llvm::IRBuilder<> &builder, llvm::Value *l, llvm::Value *r);
-    };
 
     class StringHelper {
     public:
@@ -56,18 +34,16 @@ namespace go_parser {
 
     class MyBlock {
     public:
-        MyBlock(llvm::Function *function);
-
-        MyBlock(llvm::Function *function, MyBlock *previous);
+        MyBlock();
+        MyBlock(MyBlock *previous);
 
         /*
          * Find Variable in named_value by the name in this block and it's parents blocks
          */
-        Variable GetNamedValue(llvm::Module *module, std::string value_name);
+        BasicVar* GetNamedValue(std::string value_name);
 
-        llvm::Function *function;
         MyBlock *previous;
-        std::map<std::string, Variable> named_values;
+        std::map<std::string, BasicVar*> named_values;
     };
 
 }

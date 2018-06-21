@@ -3,8 +3,10 @@
 
 #include "antlr4-runtime.h"
 #include "Go2LLVMVisitor.h"
-#include "Go2LLVMError.h"
-#include "Helpers.h"
+#include "../exceptions/Go2LLVMError.h"
+#include "../Helpers.h"
+#include "../variables/BasicVar.h"
+#include "../variables/VarFactory.h"
 
 #include <llvm/ADT/APFloat.h>
 #include <llvm/ADT/STLExtras.h>
@@ -31,7 +33,10 @@ namespace go_parser {
         LLVMContext &context;
         IRBuilder<> &builder;
         Module *module;
+
         MyBlock *current_block;
+        VarFactory var_factory;
+
         bool is_main_defined;
 
         Go2LLVMMyVisitor(LLVMContext&, IRBuilder<>&, Module*);

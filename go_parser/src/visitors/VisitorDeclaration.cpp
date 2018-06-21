@@ -1,5 +1,4 @@
 #include "Go2LLVMMyVisitor.h"
-#include "Helpers.h"
 
 using namespace go_parser;
 using namespace llvm;
@@ -9,35 +8,36 @@ using std::vector;
 
 /*
  * Declaration = "var" IdentifierList Type ["=" ExpressionList]
- * Return: nullptr | vector<Variable>
+ * Return: vector<BasicVar*>
  */
 Any Go2LLVMMyVisitor::visitDeclaration(Go2LLVMParser::DeclarationContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitDeclaration: " + ctx->getText());
 
     // get names and check for uniqueness
     vector<string> identifiers = ctx->identifierList()->accept(this);
     if(std::adjacent_find(identifiers.begin(), identifiers.end()) != identifiers.end()) {
-        throw Go2LLVMError(ctx->getStart()->getLine(), "variables must be unique");
+        throw Go2LLVMError("variables must be unique");
     }
 
     // get type
     Type *type = ctx->type()->accept(this);
 
     // create variables
-    vector<Variable> variables;
+    vector<BasicVar*> variables;
     for(string identifier : identifiers) {
-        variables.push_back(Variable(identifier, type));
+        variables.push_back(var_factory.Get(identifier, type));
     }
 
     // check for variables' initialization
     if(ctx->EQ() != nullptr && ctx->expressionList() != nullptr) {
-        vector<Value*> expressions = ctx->expressionList()->accept(this);
+        vector<BasicVar*> expressions = ctx->expressionList()->accept(this);
 
         if(expressions.size() != identifiers.size())
-            throw Go2LLVMError(ctx->getStart()->getLine(), "identifiers list size != expressions list size");
+            throw Go2LLVMError("identifiers list size != expressions list size");
 
         for(size_t i = 0; i<variables.size(); i++) {
-            variables.at(i).value = expressions.at(i);
+            variables.at(i)->setValue(expressions.at(i)->getValue());
         }
     }
 

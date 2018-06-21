@@ -12,12 +12,12 @@ set(ANTLR_JAR_LOCATION /home/gros/studia/eaiib_3b/kompilatory/go_parser/antlr-4.
 
 # antlr stuff
 set(go_parser-GENERATED_SRC
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMLexer.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMParser.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMBaseListener.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMBaseVisitor.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMListener.cpp
-        ${PROJECT_SOURCE_DIR}/generated/Go2LLVMVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMLexer.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMParser.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMBaseListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMBaseVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMListener.cpp
+        ${PROJECT_SOURCE_DIR}/src/generated/Go2LLVMVisitor.cpp
 )
 
 foreach( src_file ${go_parser-GENERATED_SRC} )
@@ -31,9 +31,9 @@ endforeach( src_file ${go_parser-GENERATED_SRC} )
 add_custom_target(GenerateParser DEPENDS ${go_parser-GENERATED_SRC})
 add_custom_command(OUTPUT ${go_parser-GENERATED_SRC}
         COMMAND
-        ${CMAKE_COMMAND} -E make_directory ${PROJECT_SOURCE_DIR}/generated/
+        ${CMAKE_COMMAND} -E make_directory src/generated/
         COMMAND
-        "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o ${PROJECT_SOURCE_DIR}/generated/ -package go_parser ${PROJECT_SOURCE_DIR}/Go2LLVM.g4
+        "${Java_JAVA_EXECUTABLE}" -jar ${ANTLR_JAR_LOCATION} -Werror -Dlanguage=Cpp -listener -visitor -o src/generated/ -package go_parser ${PROJECT_SOURCE_DIR}/Go2LLVM.g4
         WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
         DEPENDS ${PROJECT_SOURCE_DIR}/Go2LLVM.g4
         )
@@ -45,7 +45,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/dfa
         ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/tree
         ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/include/antlr4-runtime/support
-        ${PROJECT_SOURCE_DIR}/generated
+        src/generated
 )
 
 # llvm stuff
@@ -63,15 +63,21 @@ llvm_map_components_to_libnames(llvm_libs support core irreader)
 # main project stuff
 set(go_parser-SRC
         ${PROJECT_SOURCE_DIR}/src/go_parser.cpp
-        ${PROJECT_SOURCE_DIR}/src/Go2LLVMMyVisitor.cpp
         ${PROJECT_SOURCE_DIR}/src/Helpers.cpp
-        ${PROJECT_SOURCE_DIR}/src/Go2LLVMError.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorTopLevel.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorStatement.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorDeclaration.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorExpression.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorOperand.cpp
-        ${PROJECT_SOURCE_DIR}/src/VisitorFunction.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/Go2LLVMMyVisitor.cpp
+        ${PROJECT_SOURCE_DIR}/src/exceptions/Go2LLVMError.cpp
+        ${PROJECT_SOURCE_DIR}/src/exceptions/Go2LLVMWarning.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorTopLevel.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorStatement.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorDeclaration.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorExpression.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorOperand.cpp
+        ${PROJECT_SOURCE_DIR}/src/visitors/VisitorFunction.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/BasicVar.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/IntegerVar.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/FloatVar.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/VarFactory.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/PointerVar.cpp
         ${go_parser-GENERATED_SRC}
 )
 
@@ -97,7 +103,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 add_dependencies(go_parser GenerateParser)
-
 target_link_libraries(go_parser ${llvm_libs} ${PROJECT_SOURCE_DIR}/antlr_runtime_unix/lib/libantlr4-runtime.a)
 
 

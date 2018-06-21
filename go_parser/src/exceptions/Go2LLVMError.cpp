@@ -4,4 +4,4 @@
 using namespace go_parser;
 
 std::vector<std::string> Go2LLVMError::errors;
-std::vector<std::string> Go2LLVMError::warnings;
+size_t Go2LLVMError::line_no;

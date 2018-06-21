@@ -1,5 +1,4 @@
 #include "Go2LLVMMyVisitor.h"
-#include "Helpers.h"
 
 using namespace go_parser;
 using namespace llvm;
@@ -10,8 +9,10 @@ using std::pair;
 
 /*
  * SourceFile = PackageClause Eos { TopLevelDecl Eos }
+ * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitSourceFile: " + ctx->getText());
 
     // create main function, so we have global variables initializer block
@@ -21,21 +22,24 @@ Any Go2LLVMMyVisitor::visitSourceFile(Go2LLVMParser::SourceFileContext *ctx) {
     BasicBlock *entrypoint = BasicBlock::Create(context, "main entrypoint", mainFunc);
     builder.SetInsertPoint(entrypoint);
 
-    for(auto topLevelDecl : ctx->topLevelDecl()) {
+    current_block = new MyBlock();
+
+    for (auto topLevelDecl : ctx->topLevelDecl()) {
         topLevelDecl->accept(this);
     }
 
-    if(!this->is_main_defined) {
+    if (!this->is_main_defined) {
         throw Go2LLVMError("Main function is not defined");
     }
 
-    return std::string("done");
+    return nullptr;
 }
 
 /*
  * External function should be here somehow
  */
 Any Go2LLVMMyVisitor::visitPackageClause(Go2LLVMParser::PackageClauseContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     return visitChildren(ctx);
 }
 
@@ -44,36 +48,31 @@ Any Go2LLVMMyVisitor::visitPackageClause(Go2LLVMParser::PackageClauseContext *ct
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitTopLevelDecl: " + ctx->getText());
 
     // create global variables
-    if(ctx->declaration() != nullptr) {
-        vector<Variable> variables = ctx->declaration()->accept(this);
+    if (ctx->declaration() != nullptr) {
+        vector<BasicVar *> variables = ctx->declaration()->accept(this);
 
-        for(auto &variable : variables) {
-            // global init value
-            Constant *init_val;
-            if(variable.type->isFloatingPointTy())
-                init_val = ConstantFP::getZeroValueForNegation(variable.type);
-            else if(variable.type->isIntegerTy())
-                init_val = ConstantInt::get(context, APInt(variable.type->getIntegerBitWidth(), 0));
-            else
-                throw Go2LLVMError(ctx->getStart()->getLine(), "Unknown type");
-
+        for (auto &variable : variables) {
             // create global in the module
-            GlobalVariable *global_var = new GlobalVariable(*module, variable.type, false,
-                                                            GlobalValue::LinkageTypes::InternalLinkage, init_val, variable.name);
+            GlobalVariable *global_var = new GlobalVariable(*module, variable->getType(), false,
+                                                            GlobalValue::LinkageTypes::InternalLinkage,
+                                                            variable->getZeroValue(), variable->name);
+
+            current_block->named_values[global_var->getName()] = var_factory.Get(global_var->getName(),
+                                                                                 global_var->getType(), global_var);
 
             // initialize them at the beginning of the main function
-            if(variable.value != nullptr) {
-                variable.value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable.value, variable.type);
-                builder.CreateStore(variable.value, global_var, false);
+            if (variable->getValue() != nullptr) {
+                builder.CreateStore(variable->getValue(), global_var, false);
             }
         }
     }
 
     // create functions
-    if(ctx->functionDecl() != nullptr) {
+    if (ctx->functionDecl() != nullptr) {
         ctx->functionDecl()->accept(this);
     }
 
@@ -82,16 +81,18 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
 
 /*
  * Type = IDENT_TOK
- * Return: nullptr | Type*
+ * Return: Type*
  */
 Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
-    string typeStr = ctx->IDENT_TOK()->getText();
-    Type *type = Variable::TypeFromStr(context, typeStr);
-    if(!type)
-        throw Go2LLVMError(ctx->getStart()->getLine(), "wrong type: " + typeStr);
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
 
-    if(ctx->ptr_tok != nullptr) {
-        return (Type*)llvm::PointerType::getUnqual(type);
+    string typeStr = ctx->IDENT_TOK()->getText();
+    Type *type = var_factory.StringToType(typeStr);
+    if (!type)
+        throw Go2LLVMError("wrong type: " + typeStr);
+
+    if (ctx->ptr_tok != nullptr) {
+        return (Type *) llvm::PointerType::getUnqual(type);
     } else {
         return type;
     }
@@ -104,12 +105,13 @@ Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {
  * modifies builder and current_block
  */
 Any Go2LLVMMyVisitor::visitBlock(Go2LLVMParser::BlockContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitBlock: " + ctx->getText());
 
     Function *current_function = builder.GetInsertBlock()->getParent();
     MyBlock *previous_block = current_block;
 
-    current_block = new MyBlock(current_function, previous_block);
+    current_block = new MyBlock(previous_block);
     ctx->statementList()->accept(this);
     current_block = previous_block;
 
@@ -117,9 +119,10 @@ Any Go2LLVMMyVisitor::visitBlock(Go2LLVMParser::BlockContext *ctx) {
 }
 
 /*
- * not used
+ * Not used
  */
 Any Go2LLVMMyVisitor::visitEos(Go2LLVMParser::EosContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     return visitChildren(ctx);
 }
 

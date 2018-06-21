@@ -14,7 +14,9 @@ using std::pair;
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitStatementList(Go2LLVMParser::StatementListContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitStatementList: " + ctx->getText());
+
     for (auto statement : ctx->statement()) {
         statement->accept(this);
     }
@@ -26,28 +28,28 @@ Any Go2LLVMMyVisitor::visitStatementList(Go2LLVMParser::StatementListContext *ct
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitStatement: " + ctx->getText());
 
     if (ctx->declaration() != nullptr) {
-        vector<Variable> variables = ctx->declaration()->accept(this);
+        vector<BasicVar*> variables = ctx->declaration()->accept(this);
         for (auto &variable : variables) {
 
             try {
-                current_block->GetNamedValue(module, variable.name);
-                throw Go2LLVMError(ctx->getStart()->getLine(), "variable " + variable.name + " is already defined");
+                current_block->GetNamedValue(variable->name);
+                throw Go2LLVMError("variable " + variable->name + " is already defined");
             } catch (NoNamedValueException) {}
 
             // Create an alloca for the variable
-            AllocaInst *alloca = builder.CreateAlloca(variable.type, 0, variable.name + ".addr");
+            AllocaInst *alloca = builder.CreateAlloca(variable->getType(), 0, variable->name + ".addr");
 
             // Store the initial value into the alloca.
-            if (variable.value != nullptr) {
-                variable.value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable.value, variable.type);
-                builder.CreateStore(variable.value, alloca);
+            if (variable->getValue() != nullptr) {
+                builder.CreateStore(variable->getValue(), alloca);
             }
 
             // Add variable to block's symbol table.
-            current_block->named_values[variable.name] = Variable(variable.name, variable.type, alloca);
+            current_block->named_values[variable->name] = var_factory.Get(variable->name, alloca->getType(), alloca);
 
         }
 
@@ -71,6 +73,8 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
+
     Value *cond_val = ctx->expression()->accept(this);
 
     Function *function = builder.GetInsertBlock()->getParent();
@@ -113,16 +117,16 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitReturnStmt(Go2LLVMParser::ReturnStmtContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitReturnStmt: " + ctx->getText());
 
     if (ctx->expressionList() != nullptr) {
-        vector<Value *> expressions = ctx->expressionList()->accept(this);
+        vector<BasicVar*> expressions = ctx->expressionList()->accept(this);
 
         // for now one value is returned
         for (auto expression : expressions) {
-            expression = Variable::CastL2R(ctx->getStart()->getLine(), builder, expression,
-                                           builder.getCurrentFunctionReturnType());
-            builder.CreateRet(expression);
+            BasicVar *variable = var_factory.Get("tmp_return_var", builder.getCurrentFunctionReturnType(), expression->getValue());
+            builder.CreateRet(variable->getValue());
             break;
         }
     } else {
@@ -137,6 +141,7 @@ Any Go2LLVMMyVisitor::visitReturnStmt(Go2LLVMParser::ReturnStmtContext *ctx) {
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitSimpleStmt(Go2LLVMParser::SimpleStmtContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitSimpleStmt: " + ctx->getText());
 
     if (ctx->emptyStmt() != nullptr) {
@@ -157,24 +162,23 @@ Any Go2LLVMMyVisitor::visitSimpleStmt(Go2LLVMParser::SimpleStmtContext *ctx) {
  * Return: nullptr
  */
 Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
+    Go2LLVMError::line_no = ctx->getStart()->getLine();
     Go2LLVMError::Log("visitAssignment: " + ctx->getText());
 
     vector<string> identifiers = ctx->identifierList()->accept(this);
-    vector<Value*> assignments = ctx->expressionList()->accept(this);
+    vector<BasicVar*> assignments = ctx->expressionList()->accept(this);
 
     if (identifiers.size() != assignments.size())
-        throw Go2LLVMError(ctx->getStart()->getLine(), "identifiers list size != right hand side size");
+        throw Go2LLVMError("identifiers list size != right hand side size");
 
     for (size_t i = 0; i < identifiers.size(); i++) {
         try {
-            Value *variable_ptr_value = current_block->GetNamedValue(module, identifiers.at(i)).value;
-            Value *variable_new_value = assignments.at(i);
-
-            variable_new_value = Variable::CastL2R(ctx->getStart()->getLine(), builder, variable_new_value,
-                                                   ((PointerType*)variable_ptr_value->getType())->getElementType());
-            builder.CreateStore(variable_new_value, variable_ptr_value);
+            BasicVar *variable_ptr_value = current_block->GetNamedValue(identifiers.at(i));
+            Type *raw_type = ((PointerType*)variable_ptr_value->getType())->getElementType();
+            BasicVar *variable_new_value = var_factory.Get("tmp_assign_var", raw_type, assignments.at(i)->getValue());
+            builder.CreateStore(variable_new_value->getValue(), variable_ptr_value->getValue());
         } catch (NoNamedValueException) {
-            throw Go2LLVMError(ctx->getStart()->getLine(), "unknown variable name " + identifiers.at(i));
+            throw Go2LLVMError("unknown variable name " + identifiers.at(i));
         }
     }
 

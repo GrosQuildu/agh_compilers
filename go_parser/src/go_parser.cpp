@@ -4,7 +4,8 @@
 #include "antlr4-runtime.h"
 #include "Go2LLVMParser.h"
 #include "Go2LLVMLexer.h"
-#include "Go2LLVMMyVisitor.h"
+#include "visitors/Go2LLVMMyVisitor.h"
+#include "exceptions/Go2LLVMWarning.h"
 
 using namespace go_parser;
 using namespace antlr4;
@@ -83,8 +84,8 @@ int main(int argc, const char **argv) {
         return 1;
     }
 
-    if(!Go2LLVMError::NoWarnings()) {
-        Go2LLVMError::PrintWarnings();
+    if(!Go2LLVMWarning::NoWarnings()) {
+        Go2LLVMWarning::PrintWarnings();
     }
 
     // Verify, dump to stdout and save to file
