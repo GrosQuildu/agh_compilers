@@ -11,7 +11,15 @@ var g int32 = 55;
 
 func main() {
     var i float = 33;
-    printf("%f\n", i+g+3+1);
+    if 1+i == 33 {
+        printf("ok\n");
+    } else if i*3*3*g == 16335 {
+        printf("2\n");
+    } else {
+        printf("3\n");
+    }
+
+    printf("%f\n", i*3*3*g);
     puts("end\n");
     return;
 }

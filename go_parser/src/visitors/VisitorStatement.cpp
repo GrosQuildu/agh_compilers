@@ -75,7 +75,7 @@ Any Go2LLVMMyVisitor::visitStatement(Go2LLVMParser::StatementContext *ctx) {
 Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     Go2LLVMError::line_no = ctx->getStart()->getLine();
 
-    Value *cond_val = ctx->expression()->accept(this);
+    BasicVar *cond_val = ctx->expression()->accept(this);
 
     Function *function = builder.GetInsertBlock()->getParent();
     BasicBlock *if_bb = BasicBlock::Create(context, "if", function);
@@ -83,9 +83,9 @@ Any Go2LLVMMyVisitor::visitIfStmt(Go2LLVMParser::IfStmtContext *ctx) {
     BasicBlock *merge_bb = BasicBlock::Create(context, "merge");
 
     if(ctx->ELSE_TOK() != nullptr)
-        builder.CreateCondBr(cond_val, if_bb, else_bb);
+        builder.CreateCondBr(cond_val->getValue(), if_bb, else_bb);
     else
-        builder.CreateCondBr(cond_val, if_bb, merge_bb);
+        builder.CreateCondBr(cond_val->getValue(), if_bb, merge_bb);
 
     // Emit if block
     builder.SetInsertPoint(if_bb);
