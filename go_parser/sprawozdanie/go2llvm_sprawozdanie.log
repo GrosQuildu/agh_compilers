@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Debian) (preloaded format=pdflatex 2017.12.8)  21 JUN 2018 12:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Debian) (preloaded format=pdflatex 2017.12.8)  21 JUN 2018 13:49
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1262,7 +1262,7 @@ runsystem(rm go2llvm_sprawozdanie.pyg)...executed.
 Here is how much of TeX's memory you used:
  18465 strings out of 494328
  328023 string characters out of 6163860
- 419800 words of memory out of 5000000
+ 419922 words of memory out of 5000000
  21541 multiletter control sequences out of 15000+600000
  17337 words of font info for 29 fonts, out of 8000000 for 9000
  370 hyphenation exceptions out of 8191
@@ -1272,7 +1272,7 @@ e/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/
 fonts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/
 urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8
 a.pfb>
-Output written on go2llvm_sprawozdanie.pdf (4 pages, 60669 bytes).
+Output written on go2llvm_sprawozdanie.pdf (4 pages, 60673 bytes).
 PDF statistics:
  34 PDF objects out of 1000 (max. 8388607)
  23 compressed objects within 1 object stream

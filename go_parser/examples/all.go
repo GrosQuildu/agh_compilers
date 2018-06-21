@@ -33,6 +33,13 @@ func main() {
 	var var4 float128 = 1234;
 	printf("vars: %d, %d, %f, %a\n", var1, var2, var3, var4);
 
+	var x bool = false == false;
+	if x {
+		puts("x")
+	} else {
+		puts("no x");
+	}
+
 	// hex/oct
 	var var5 int = 0x123;
 	var var6 int = 0123;
