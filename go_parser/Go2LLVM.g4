@@ -203,6 +203,7 @@ basicLit
     | FLOAT_TOK
     | IMAG_TOK
     | STRING_TOK
+    | BOOL_TOK
     ;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,6 +281,10 @@ fragment HEX_BYTE_VALUE
     : '\\' 'x' HEX_DIGIT HEX_DIGIT
     ;
 
+//bool_tok = true | false
+BOOL_TOK
+    : ('true' | 'TRUE' | 'false' | 'FALSE')
+     ;
 
 //int_tok = (1..9) {(1..9)} | 0 {(0..7)} | 0 (x | X) {(0..9 | a..f | A..F)}
 INT_TOK

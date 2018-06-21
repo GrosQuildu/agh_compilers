@@ -71,40 +71,63 @@ BasicVar *IntegerVar::Expression(std::string op, BasicVar *var) {
     Value *l = this->getValue();
     Value *r = var->getValue();
 
-    switch (op[0]) {
-        case '+':
-            value = builder.CreateAdd(l, r, "binaryAdd");
-            break;
-        case '-':
-            value = builder.CreateSub(l, r, "binarySub");
-            break;
-        case '*':
-            value = builder.CreateMul(l, r, "binaryMul");
-            break;
-        case '/':
-            value = builder.CreateSDiv(l, r, "binaryDiv");
-            break;
-        case '=':
-            value = builder.CreateICmp(CmpInst::Predicate::ICMP_EQ, l, r, "binaryCmp");
-        default:
-            throw Go2LLVMError("Unknown binary operator " + op);
+    if(op == "+") {
+        value = builder.CreateAdd(l, r, "binaryAdd");
+    } else if(op == "-") {
+        value = builder.CreateSub(l, r, "CreateSub");
+    } else if(op == "*") {
+        value = builder.CreateMul(l, r, "CreateMul");
+    } else if(op == "/") {
+        value = builder.CreateSDiv(l, r, "CreateDiv");
+    } else if(op == "%") {
+        value = builder.CreateSRem(l, r, "CreateRem");
+    } else if(op == "<<") {
+        value = builder.CreateShl(l, r, "CreateShl");
+    } else if(op == ">>") {
+        value = builder.CreateLShr(l, r, "CreateLShr");
+    } else if(op == "&") {
+        value = builder.CreateBinOp(llvm::BinaryOperator::And, l, r, "CreateAnd");
+    } else if(op == "&^") {
+        value = builder.CreateBinOp(llvm::BinaryOperator::And, l, r, "CreateAnd");
+    } else if(op == "|") {
+        value = builder.CreateBinOp(llvm::BinaryOperator::Or, l, r, "CreateOr");
+    } else if(op == "^") {
+        value = builder.CreateBinOp(llvm::BinaryOperator::Xor, l, r, "CreateXor");
+    } else if(op == "==") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_EQ, l, r, "binaryCmpICMP_EQ");
+    } else if(op == "!=") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_NE, l, r, "binaryCmpICMP_NE");
+    }  else if(op == "<") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_SLT, l, r, "binaryCmpICMP_SLT");
+    }  else if(op == ">") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_SGT, l, r, "binaryCmpICMP_SGT");
+    }  else if(op == "<=") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_SLE, l, r, "binaryCmpICMP_SLE");
+    }  else if(op == ">=") {
+        value = builder.CreateICmp(CmpInst::Predicate::ICMP_SGE, l, r, "binaryCmpICMP_SLE");
+    } else if(op == "&&") {
+        value = builder.CreateAnd(l, r, "CreateAnd");
+    }  else if(op == "||") {
+        value = builder.CreateOr(l, r, "CreateOr");
+    } else {
+        throw Go2LLVMError("Unknown binary operator " + op);
     }
 
+    this->type = value->getType();
     return this;
 }
 
 BasicVar *IntegerVar::Expression(std::string op) {
     Value *r = this->getValue();
 
-    switch (op[0]) {
-        case '+':
-            value = r;
-            break;
-        case '-':
-            value = builder.CreateSub(this->getZeroValue(), r, "unarySub");
-            break;
-        default:
-            throw Go2LLVMError("Unknown unary operator " + op);
+    if(op == "+") {
+        value = r;
+    } else if(op == "-") {
+        value = builder.CreateSub(this->getZeroValue(), r, "unarySub");
+    } else if(op == "!") {
+        value = builder.CreateNeg(r, "CreateMul");
+    } else {
+        throw Go2LLVMError("Unknown unary operator " + op);
     }
 
     return this;

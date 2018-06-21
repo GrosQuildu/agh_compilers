@@ -79,6 +79,7 @@ set(go_parser-SRC
         ${PROJECT_SOURCE_DIR}/src/variables/VarFactory.cpp
         ${PROJECT_SOURCE_DIR}/src/variables/PointerVar.cpp
         ${PROJECT_SOURCE_DIR}/src/variables/VoidVar.cpp
+        ${PROJECT_SOURCE_DIR}/src/variables/BoolVar.cpp
         ${go_parser-GENERATED_SRC}
 )
 

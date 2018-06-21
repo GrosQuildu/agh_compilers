@@ -4,6 +4,7 @@
 #include "../exceptions/Go2LLVMError.h"
 #include "PointerVar.h"
 #include "VoidVar.h"
+#include "BoolVar.h"
 
 using namespace go_parser;
 
@@ -33,7 +34,9 @@ BasicVar *VarFactory::Get(std::string name, llvm::Type *type, llvm::Value *value
 BasicVar *VarFactory::Get(std::string name, llvm::Type *type) {
     Go2LLVMError::Log("VarFactory::Get - type: " + VarFactory::TypeToString(type));
 
-    if (type->isFloatingPointTy())
+    if (type->isIntegerTy(1))
+        return new BoolVar(context, builder, name, type);
+    else if (type->isFloatingPointTy())
         return new FloatVar(context, builder, name, type);
     else if (type->isIntegerTy())
         return new IntegerVar(context, builder, name, type);
@@ -41,6 +44,7 @@ BasicVar *VarFactory::Get(std::string name, llvm::Type *type) {
         return new PointerVar(context, builder, name, type);
     else if (type->isVoidTy())
         return new VoidVar(context, builder, name, type);
+
     throw Go2LLVMError("Unknown type: " + VarFactory::TypeToString(type));
 }
 
@@ -51,6 +55,8 @@ BasicVar *VarFactory::Get(std::string type, std::string init_val) {
         return new IntegerVar(context, builder, init_val);
     } else if(type == "FloatVar") {
         return new FloatVar(context, builder, init_val);
+    } else if(type == "BoolVar") {
+        return new BoolVar(context, builder, init_val);
     }
 
     throw Go2LLVMError("Unknown type: " + type);
@@ -82,6 +88,8 @@ Type *VarFactory::StringToType(string type_string) {
         throw Go2LLVMError("Strings not implemented ;/");
     } else if (type_string == "void") {
         type = llvm::FunctionType::getVoidTy(context);
+    } else if (type_string == "bool") {
+        type = Type::getIntNTy(context, 1);
     } else {
         return nullptr;
     }
@@ -136,7 +144,11 @@ std::pair<BasicVar*, BasicVar*> VarFactory::BestCast(BasicVar *l, BasicVar *r) {
 
     bool cast_r;
 
-    if (l->getType()->isIntegerTy() && r->getType()->isIntegerTy()) {
+    if(l->getType()->isIntegerTy(1))
+        cast_r = true;
+    else if(r->getType()->isIntegerTy(1))
+        cast_r = false;
+    else if (l->getType()->isIntegerTy() && r->getType()->isIntegerTy()) {
         if (l->getType()->getIntegerBitWidth() >= r->getType()->getIntegerBitWidth())
             cast_r = true;
         else

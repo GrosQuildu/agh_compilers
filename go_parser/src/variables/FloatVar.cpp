@@ -12,8 +12,8 @@ using llvm::CmpInst;
 
 FloatVar::FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, std::string number) : BasicVar(context,
                                                                                                           builder) {
-    // minimal amount of bits required to store this literal
-    Value *value = ConstantFP::get(context, APFloat(APFloat::IEEEdouble, number));
+    // todo: exponent handling
+    value = ConstantFP::get(context, APFloat(APFloat::IEEEdouble, number));
 
     this->name = "basicFloatLiteral";
     this->type = value->getType();
@@ -55,34 +55,45 @@ BasicVar* FloatVar::Expression(std::string op, BasicVar *var) {
     Value *l = this->getValue();
     Value *r = var->getValue();
 
-    switch (op[0]) {
-        case '+':
-            value = builder.CreateFAdd(l, r, "binaryFAdd"); break;
-        case '-':
-            value = builder.CreateFSub(l, r, "binaryFSub"); break;
-        case '*':
-            value = builder.CreateFMul(l, r, "binaryFMul"); break;
-        case '/':
-            value = builder.CreateFDiv(l, r, "binaryFDiv"); break;
-        case '=':
-            value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OEQ, l, r, "binaryFCmp"); break;
-        default:
-            throw Go2LLVMError("unknown unary operator " + op);
+    if(op == "+") {
+        value = builder.CreateFAdd(l, r, "CreateFAdd");
+    } else if(op == "-") {
+        value = builder.CreateFSub(l, r, "CreateFSub");
+    } else if(op == "*") {
+        value = builder.CreateFMul(l, r, "CreateFMul");
+    } else if(op == "/") {
+        value = builder.CreateFDiv(l, r, "CreateFDiv");
+    } else if(op == "%") {
+        value = builder.CreateFRem(l, r, "CreateFRem");
+    } else if(op == "==") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OEQ, l, r, "binaryCmpFCMP_OEQ");
+    } else if(op == "!=") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_ONE, l, r, "binaryCmpFCMP_ONE");
+    }  else if(op == "<") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OLT, l, r, "binaryCmpFCMP_OLT");
+    }  else if(op == ">") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OGT, l, r, "binaryCmpFCMP_OGT");
+    }  else if(op == "<=") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OLE, l, r, "binaryCmpFCMP_OLE");
+    }  else if(op == ">=") {
+        value = builder.CreateFCmp(CmpInst::Predicate::FCMP_OGE, l, r, "binaryCmpFCMP_OGE");
+    } else {
+        throw Go2LLVMError("Unknown binary operator " + op);
     }
 
+    this->type = value->getType();
     return this;
 }
 
 BasicVar* FloatVar::Expression(std::string op) {
     Value *r = this->getValue();
 
-    switch (op[0]) {
-        case '+':
-            value = r; break;
-        case '-':
-            value = builder.CreateFSub(this->getZeroValue(), r, "unarySub"); break;
-        default:
-            throw Go2LLVMError("Unknown unary operator " + op);
+    if(op == "+") {
+        value = r;
+    } else if(op == "-") {
+        value = builder.CreateFSub(this->getZeroValue(), r, "unarySub");
+    } else {
+        throw Go2LLVMError("Unknown unary operator " + op);
     }
 
     return this;

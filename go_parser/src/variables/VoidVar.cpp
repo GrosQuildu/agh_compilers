@@ -17,7 +17,7 @@ llvm::Value *VoidVar::Cast(llvm::Value *l) {
     if (l->getType() == type)
         return l;
 
-    throw Go2LLVMError("Can't cast " + VarFactory::TypeToString(l->getType()) + " to pointer " +
+    throw Go2LLVMError("Can't cast " + VarFactory::TypeToString(l->getType()) + " to void " +
                        VarFactory::TypeToString(this->getType()));
 }
 
@@ -26,9 +26,9 @@ Constant *VoidVar::getZeroValue() {
 }
 
 BasicVar *VoidVar::Expression(std::string op, BasicVar *var) {
-    throw Go2LLVMError("Expressions with pointers not allowed");
+    throw Go2LLVMError("Expressions with voids not allowed");
 }
 
 BasicVar *VoidVar::Expression(std::string op) {
-    throw Go2LLVMError("Expressions with pointers not allowed");
+    throw Go2LLVMError("Expressions with voids not allowed");
 }

@@ -16,11 +16,11 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, STRING_TOK = 22, INT_TOK = 23, FLOAT_TOK = 24, IMAG_TOK = 25, 
-    UNARY_OP_TOK = 26, BINARY_OP_TOK = 27, PACKAGE_TOK = 28, VAR_TOK = 29, 
-    FUNC_TOK = 30, RETURN_TOK = 31, IF_TOK = 32, ELSE_TOK = 33, IDENT_TOK = 34, 
-    BO = 35, BC = 36, PO = 37, PC = 38, SEMICOLON = 39, EQ = 40, COMMA = 41, 
-    WS = 42, COMMENT = 43, LINE_COMMENT = 44, TERMINATOR = 45
+    T__20 = 21, STRING_TOK = 22, BOOL_TOK = 23, INT_TOK = 24, FLOAT_TOK = 25, 
+    IMAG_TOK = 26, UNARY_OP_TOK = 27, BINARY_OP_TOK = 28, PACKAGE_TOK = 29, 
+    VAR_TOK = 30, FUNC_TOK = 31, RETURN_TOK = 32, IF_TOK = 33, ELSE_TOK = 34, 
+    IDENT_TOK = 35, BO = 36, BC = 37, PO = 38, PC = 39, SEMICOLON = 40, 
+    EQ = 41, COMMA = 42, WS = 43, COMMENT = 44, LINE_COMMENT = 45, TERMINATOR = 46
   };
 
   Go2LLVMLexer(antlr4::CharStream *input);
