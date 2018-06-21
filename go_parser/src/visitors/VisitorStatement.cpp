@@ -225,8 +225,17 @@ Any Go2LLVMMyVisitor::visitAssignment(Go2LLVMParser::AssignmentContext *ctx) {
             from_value = variable_new_value->getValue();
             to_value = variable_ptr_value->getValue();
         }
+        if(ctx->op_tok != nullptr) {
+            Value *to_new_value = builder.CreateLoad(to_value, "assign_op_load");
+            BasicVar *to_new_value_var = var_factory.Get(to_new_value->getName(), to_new_value->getType(), to_new_value);
+            BasicVar *from_value_var = var_factory.Get(from_value->getName(), from_value->getType(), from_value);
+            from_value_var = to_new_value_var->Expression(ctx->op_tok->getText(), from_value_var);
 
-        builder.CreateStore(from_value, to_value);
+            from_value = from_value_var->getValue();
+            builder.CreateStore(from_value, to_value);
+        } else {
+            builder.CreateStore(from_value, to_value);
+        }
 
     }
 

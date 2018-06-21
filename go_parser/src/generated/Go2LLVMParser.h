@@ -294,6 +294,7 @@ public:
 
   class  AssignmentContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *op_tok = nullptr;;
     AssignmentContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<ExpressionListContext *> expressionList();

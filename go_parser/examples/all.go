@@ -29,7 +29,7 @@ func main() {
 	// basic variables
 	var var1 int = 5;
 	var var2 int7331 = 4444
-	var var3 float = -66.11;
+	var var3 float = -.11;
 	var var4 float128 = 1234;
 	printf("vars: %d, %d, %f, %a\n", var1, var2, var3, var4);
 
@@ -37,6 +37,10 @@ func main() {
 	var var5 int = 0x123;
 	var var6 int = 0123;
 	printf("vars2: %x %d\n", var5, var6);
+
+	// identifiers may be unicode letters and underscore _
+	var testółęążźǷƿwwooŁĄŻŹƤƤƤ int131 = 123;
+	printf("bum: %d\n", testółęążźǷƿwwooŁĄŻŹƤƤƤ)
 
 	// pointers
 	var ptr1 *int = &var1;
@@ -48,6 +52,10 @@ func main() {
 	puts("\narithmetic:");
 	printf("%d\n", (1+2*341/4)%100 << 2 >> 1 & (11 | 2222 ^ 1));
 	printf("%f\n", (1.1+2*341/4)%100.2);
+
+	var z float = 10;
+	z += 2.2;
+	printf("%f\n", z);
 	puts("");
 
 	// branches

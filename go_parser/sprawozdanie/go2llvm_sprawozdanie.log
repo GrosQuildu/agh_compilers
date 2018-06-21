@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Debian) (preloaded format=pdflatex 2017.12.8)  15 JUN 2018 21:07
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Debian) (preloaded format=pdflatex 2017.12.8)  21 JUN 2018 12:26
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -1169,16 +1169,89 @@ File: ucsencs.def 2011/01/21 Fixes to fontencodings LGR, T3
 
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <14.4> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 30.
-LaTeX Font Info:    Try loading font information for U+msa on input line 36.
-(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 71.
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+)
+Overfull \hbox (10.11pt too wide) in paragraph at lines 71--71
+[]\T1/pcr/m/n/10 escaped_char     = \TS1/pcr/m/n/10 `\T1/pcr/m/n/10 \\TS1/pcr/m
+/n/10 ` \T1/pcr/m/n/10 ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | \TS1/pcr/m/n
+/10 `\T1/pcr/m/n/10 \\TS1/pcr/m/n/10 ` \T1/pcr/m/n/10 | "\TS1/pcr/m/n/10 '\T1/p
+cr/m/n/10 " | \TS1/pcr/m/n/10 `\T1/pcr/m/n/10 "\TS1/pcr/m/n/10 ` \T1/pcr/m/n/10
+ ) .[] 
+ []
+
+
+Overfull \hbox (328.11pt too wide) in paragraph at lines 71--71
+[]\T1/pcr/m/n/10 binary_op_tok = (\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 ||\TS1/pcr/m/
+n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 &&\TS1/pcr/m/n/10 ' \T1
+/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 ==\TS1/pcr/m/n/10 ' \T1/pcr/m/n/1
+0 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 !=\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/p
+cr/m/n/10 '\T1/pcr/m/n/10 <\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '
+\T1/pcr/m/n/10 <=\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/
+n/10 >\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 >=\TS1
+/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 +\TS1/pcr/m/n/10
+ ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 -\TS1/pcr/m/n/10 ' \T1/pcr/
+m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 |\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \T
+S1/pcr/m/n/10 '\T1/pcr/m/n/10 ^\TS1/pcr/m/n/10 '' \T1/pcr/m/n/10 | \TS1/pcr/m/n
+/10 '\T1/pcr/m/n/10 *\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pc
+r/m/n/10 /\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 %\
+TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 <<\TS1/pcr/m/
+n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 >>\TS1/pcr/m/n/10 ' \T1
+/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 &\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10
+ | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 &^\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )[] 
+ []
+
+[1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+Overfull \hbox (154.11pt too wide) in paragraph at lines 129--129
+[]\T1/pcr/m/n/10 Assignment = identifierList [(\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 
++\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 -\TS1/pcr/m
+/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 |\TS1/pcr/m/n/10 ' \T1
+/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 ^\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10
+ | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 *\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr
+/m/n/10 '\T1/pcr/m/n/10 /\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T
+1/pcr/m/n/10 %\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/1
+0 <<\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 >>\TS1/p
+cr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 &\TS1/pcr/m/n/10 '
+\T1/pcr/m/n/10 )] \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 =\TS1/pcr/m/n/10 ' \T1/pcr/m/
+n/10 expressionList[] 
+ []
+
+
+Overfull \hbox (310.11pt too wide) in paragraph at lines 129--129
+[]\T1/pcr/m/n/10 binary_op_tok=(\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 *\TS1/pcr/m/n/1
+0 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 /\TS1/pcr/m/n/10 ' \T1/pcr
+/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 %\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \
+TS1/pcr/m/n/10 '\T1/pcr/m/n/10 <<\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/
+n/10 '\T1/pcr/m/n/10 >>\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/
+pcr/m/n/10 &\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 
+&^\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 +\TS1/pcr/
+m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 -\TS1/pcr/m/n/10 ' \T
+1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 |\TS1/pcr/m/n/10 ' \T1/pcr/m/n/1
+0 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 ^\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pc
+r/m/n/10 '\T1/pcr/m/n/10 ==\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '
+\T1/pcr/m/n/10 !=\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/
+n/10 <\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 <=\TS1
+/pcr/m/n/10 ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 >\TS1/pcr/m/n/10
+ ' \T1/pcr/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 >=\TS1/pcr/m/n/10 ' \T1/pcr
+/m/n/10 | \TS1/pcr/m/n/10 '\T1/pcr/m/n/10 &&\TS1/pcr/m/n/10 ' \T1/pcr/m/n/10 | 
+\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 ||\TS1/pcr/m/n/10 '\T1/pcr/m/n/10 )[] 
+ []
+
+[2]
+LaTeX Font Info:    Try loading font information for U+msa on input line 163.
+ (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 36.
+LaTeX Font Info:    Try loading font information for U+msb on input line 163.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 36.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 163.
+
 
 (/usr/share/texlive/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
@@ -1188,44 +1261,32 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 
 (./_minted-go2llvm_sprawozdanie/default-pyg-prefix.pygstyle)
 (./_minted-go2llvm_sprawozdanie/default.pygstyle)
-runsystem(pygmentize -l c -f latex -P commandprefix=PYG -F tokenmerge -P mathes
-cape=True -F gobble:n=2 -o _minted-go2llvm_sprawozdanie/2247C09CE86BB841BC40E49
-7886CEADBAC85D26A53C9CB0F338CEAB68298F546.pygtex go2llvm_sprawozdanie.pyg)...ex
-ecuted.
-
-
 (./_minted-go2llvm_sprawozdanie/2247C09CE86BB841BC40E497886CEADBAC85D26A53C9CB0
 F338CEAB68298F546.pygtex
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10> not available
 (Font)              Font shape `T1/pcr/m/sl' tried instead on input line 2.
-)
-runsystem(rm _minted-go2llvm_sprawozdanie/EA6065F62FF1ED1C29A41A6D61BEEFC2AC85D
-26A53C9CB0F338CEAB68298F546.pygtex)...executed.
-
- [1
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./go2llvm_sprawozdanie.au
-x)
+) [3] (./go2llvm_sprawozdanie.aux)
 runsystem(rm go2llvm_sprawozdanie.pyg)...executed.
 
  ) 
 Here is how much of TeX's memory you used:
- 18726 strings out of 494328
- 330114 string characters out of 6163860
- 417922 words of memory out of 5000000
- 21793 multiletter control sequences out of 15000+600000
- 18444 words of font info for 35 fonts, out of 8000000 for 9000
+ 18748 strings out of 494328
+ 330395 string characters out of 6163860
+ 419922 words of memory out of 5000000
+ 21811 multiletter control sequences out of 15000+600000
+ 19036 words of font info for 37 fonts, out of 8000000 for 9000
  370 hyphenation exceptions out of 8191
  39i,5n,67p,10425b,1210s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/time
-s/utmr8a.pfb>
-Output written on go2llvm_sprawozdanie.pdf (1 page, 40767 bytes).
+f-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/
+type1/urw/courier/ucrro8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/ti
+mes/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmr8a.pfb>
+
+Output written on go2llvm_sprawozdanie.pdf (3 pages, 61483 bytes).
 PDF statistics:
- 25 PDF objects out of 1000 (max. 8388607)
- 17 compressed objects within 1 object stream
+ 35 PDF objects out of 1000 (max. 8388607)
+ 24 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

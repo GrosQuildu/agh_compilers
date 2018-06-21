@@ -39,7 +39,7 @@ namespace go_parser {
 
         bool is_main_defined;
 
-        Go2LLVMMyVisitor(LLVMContext&, IRBuilder<>&, Module*);
+        Go2LLVMMyVisitor(LLVMContext &, IRBuilder<> &, Module *);
 
         Go2LLVMError parser_errors;
 
@@ -47,9 +47,13 @@ namespace go_parser {
         // Top Level
         /*
          * SourceFile = PackageClause Eos { TopLevelDecl Eos }
+         * Return: nullptr
          */
         virtual antlrcpp::Any visitSourceFile(Go2LLVMParser::SourceFileContext *ctx);
 
+        /*
+         * External function should be here somehow
+         */
         virtual antlrcpp::Any visitPackageClause(Go2LLVMParser::PackageClauseContext *ctx);
 
         /*
@@ -67,13 +71,13 @@ namespace go_parser {
         virtual antlrcpp::Any visitBlock(Go2LLVMParser::BlockContext *ctx);
 
         /*
-         * Type = IDENT_TOK
-         * Return: nullptr | Type*
+         * Type = [*] IDENT_TOK
+         * Return: Type*
          */
         virtual antlrcpp::Any visitType(Go2LLVMParser::TypeContext *ctx);
 
         /*
-         * not used
+         * Not used
          */
         virtual antlrcpp::Any visitEos(Go2LLVMParser::EosContext *ctx);
 
@@ -92,6 +96,10 @@ namespace go_parser {
          */
         virtual antlrcpp::Any visitStatement(Go2LLVMParser::StatementContext *ctx);
 
+        /*
+         * IfStmt = 'if' [SimpleStmt ';'] Expression Block ['else' (IfStmt | Block)]
+         * Return: nullptr
+         */
         virtual antlrcpp::Any visitIfStmt(Go2LLVMParser::IfStmtContext *ctx);
 
         /*
@@ -107,7 +115,7 @@ namespace go_parser {
         virtual antlrcpp::Any visitSimpleStmt(Go2LLVMParser::SimpleStmtContext *ctx);
 
         /*
-         * Assignment = identifierList [add_op | mul_op] '=' expressionList
+         * Assignment = identifierList [op_tok] '=' expressionList
          * Return: nullptr
          */
         virtual antlrcpp::Any visitAssignment(Go2LLVMParser::AssignmentContext *ctx);
@@ -123,7 +131,7 @@ namespace go_parser {
         // Declarations
         /*
          * Declaration = "var" IdentifierList Type ["=" ExpressionList]
-         * Return: nullptr | vector<Variable>
+         * Return: vector<BasicVar*>
          */
         virtual antlrcpp::Any visitDeclaration(Go2LLVMParser::DeclarationContext *ctx);
 
@@ -138,19 +146,19 @@ namespace go_parser {
         // Expressions
         /*
          * ExpressionList = Expression { "," Expression }
-         * Return: nullptr | vector<Value*>
+         * Return: vector<BasicVar*>
          */
         virtual antlrcpp::Any visitExpressionList(Go2LLVMParser::ExpressionListContext *ctx);
 
         /*
          * Expression = UnaryExpr | Expression binary_op_tok Expression
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitExpression(Go2LLVMParser::ExpressionContext *ctx);
 
         /*
          * UnaryExpr = unary_op_tok UnaryExpr | operand
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitUnaryExpr(Go2LLVMParser::UnaryExprContext *ctx);
 
@@ -159,37 +167,37 @@ namespace go_parser {
         // Operands
         /*
          * OperandBasicList = basicLit
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitOperandBasicLit(Go2LLVMParser::OperandBasicLitContext *ctx);
 
         /*
          * BasicLit = int_tok | float_tok | imag_tok  | string_tok
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitBasicLit(Go2LLVMParser::BasicLitContext *ctx);
 
         /*
          * OperandIdent = ident_tok
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitOperandIdent(Go2LLVMParser::OperandIdentContext *ctx);
 
         /*
          * OperandFunc = ident_tok Arguments, this is function call
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitOperandFunc(Go2LLVMParser::OperandFuncContext *ctx);
 
         /*
-         * Arguments '(' [ExpressionList [',']] ')'
-         * Return: nullptr | vector<Value*>
+         * Arguments = '(' [ExpressionList [',']] ')'
+         * Return: vector<BasicVar*>
          */
         virtual antlrcpp::Any visitArguments(Go2LLVMParser::ArgumentsContext *ctx);
 
         /*
          * OperandExp = PO expression PC
-         * Return: nullptr | Value*
+         * Return: BasicVar*
          */
         virtual antlrcpp::Any visitOperandExp(Go2LLVMParser::OperandExpContext *ctx);
 
@@ -198,39 +206,38 @@ namespace go_parser {
         // Functions
         /*
          * Function = func_tok ident_tok signature block
-         * Return: nullptr | Function*
+         * Return:  Function*
          */
         virtual antlrcpp::Any visitFunctionDecl(Go2LLVMParser::FunctionDeclContext *ctx);
 
         /*
          * Signature = parameters [result]
-         * Return: nullptr | pair<vector<Variable>, Type*> - arguments and return type
+         * Return: pair<pair<vector<BasicVar*>, bool>, Type*> - arguments and return type
          */
         virtual antlrcpp::Any visitSignature(Go2LLVMParser::SignatureContext *ctx);
 
         /*
          * Result = parameters | type
-         * Return: nullptr | Type* - type
-         */
+         * Return: Type*
+        */
         virtual antlrcpp::Any visitResult(Go2LLVMParser::ResultContext *ctx);
 
         /*
-         * Parameters = '(' [parameterList [',']] ')'
-         * Return: nullptr | vector<Variable> - parameters
+         * Parameters = '(' [parameterList [',']] [...] ')'
+         * Return: pair<vector<BasicVar*>, bool> - parameters and isVarArg
          */
         virtual antlrcpp::Any visitParameters(Go2LLVMParser::ParametersContext *ctx);
 
-
         /*
          * ParameterList = parameterDecl { COMMA parameterDecl }
-         * Return: nullptr | vector<Variable> - parameters
+         * Return: vector<BasicVar*> - parameters
          */
         virtual antlrcpp::Any visitParameterList(Go2LLVMParser::ParameterListContext *ctx);
 
         /*
-        * ParameterDecl = identifielList type
-        * Return: nullptr | vector<Variable> - parameters
-        */
+         * ParameterDecl = identifielList type
+         * Return: vector<BasicVar*> - parameters
+         */
         virtual antlrcpp::Any visitParameterDecl(Go2LLVMParser::ParameterDeclContext *ctx);
 
     };

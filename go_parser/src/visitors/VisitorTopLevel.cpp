@@ -80,7 +80,7 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
 }
 
 /*
- * Type = IDENT_TOK
+ * Type = [*] IDENT_TOK
  * Return: Type*
  */
 Any Go2LLVMMyVisitor::visitType(Go2LLVMParser::TypeContext *ctx) {

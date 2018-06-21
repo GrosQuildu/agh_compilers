@@ -89,7 +89,7 @@ block
     : BO statementList BC
     ;
 
-//Type = IDENT_TOK
+//Type = [*] IDENT_TOK
 type
     : ptr_tok='*' IDENT_TOK
     | IDENT_TOK
@@ -137,7 +137,7 @@ simpleStmt
 
 //Assignment = identifierList [add_op | mul_op] '=' expressionList
 assignment
-    : expressionList ('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')? EQ expressionList
+    : expressionList op_tok=('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&')? EQ expressionList
     ;
 
 //EmptyStmt = ";"
@@ -197,7 +197,7 @@ arguments
     : PO ( expressionList COMMA? )? PC
     ;
 
-//BasicLit = int_tok | float_tok | imag_tok  | string_tok
+//BasicLit = int_tok | float_tok | imag_tok  | string_tok | bool_tok
 basicLit
     : INT_TOK
     | FLOAT_TOK
@@ -245,12 +245,12 @@ parameterDecl
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // LEXER
 
-//string_tok = '"' {'\' ('"' | '\') | OCTAL_BYTE_VALUE | HEX_BYTE_VALUE | ~('"' | '\')} '"'
+//string_tok = '"' {'\"' | unicode_value | byte_value} '"'
 STRING_TOK
     : '"' ( '\\"' | UNICODE_VALUE | BYTE_VALUE )*? '"'
     ;
 
-//unicode_value    = unicode_char | little_u_value | big_u_value | escaped_char .
+//unicode_value    = unicode_char | escaped_char .
 fragment UNICODE_VALUE
     : UNICODE_CHAR
     | ESCAPED_CHAR
@@ -264,19 +264,23 @@ fragment ESCAPED_CHAR
     : '\\' ( 'a' | 'b' | 'f' | 'n' | 'r' | 't' | 'v' | '\\' | '\'' | '"' )
     ;
 
+//letter           = unicode_letter | '_'
 fragment LETTER
     : UNICODE_LETTER
     | '_'
     ;
 
+//byte_value       = octal_byte_value | hex_byte_value
 fragment BYTE_VALUE
     : OCTAL_BYTE_VALUE | HEX_BYTE_VALUE
     ;
 
+//octal_byte_value = '\' octal_digit octal_digit octal_digit
 fragment OCTAL_BYTE_VALUE
     : '\\' OCTAL_DIGIT OCTAL_DIGIT OCTAL_DIGIT
     ;
 
+//hex_byte_valye = '\x' hex_digit hex_digit
 fragment HEX_BYTE_VALUE
     : '\\' 'x' HEX_DIGIT HEX_DIGIT
     ;
@@ -322,11 +326,10 @@ fragment HEX_DIGIT
     ;
 
 
-//float_tok = (1..9) {(1..9)} '.' [(1..9) {(1..9)}] [('e' | 'E') [('+' | '-')] (1..9) {(1..9)}]
+//float_tok = {(1..9)} '.' [{(1..9)}] | '.' [{(1..9)}]
 FLOAT_TOK
-    : DECIMALS '.' DECIMALS? EXPONENT?
-    | DECIMALS EXPONENT
-    | '.' DECIMALS EXPONENT?
+    : DECIMALS '.' DECIMALS?
+    | '.' DECIMALS
     ;
 
 fragment EXPONENT
@@ -339,12 +342,11 @@ IMAG_TOK
     ;
 
 
-//unary_op_tok = ('+' | '-' | '!' | '^' | '*' | '&')
+//unary_op_tok = ('+' | '-' | '!' | '*' | '&')
 UNARY_OP_TOK
     : '+'
     | '-'
     | '!'
-    | '^'
     | '*'
     | '&'
     ;

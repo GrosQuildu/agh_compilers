@@ -28,11 +28,109 @@
 
 	\setstretch{1}
 	\section{Gramatyka}
+	
+	\begin{verbatim}
+		LEXER
+		
+		string_tok = '"' {'\"' | unicode_value | byte_value} '"'
+		
+		unicode_value    = unicode_char | escaped_char .
+		unicode_char = /* an arbitrary Unicode code point except newline */ .
+		
+		escaped_char     = `\` ( "a" | "b" | "f" | "n" | "r" | "t" | "v" | `\` | "'" | `"` ) .
+		
+		letter           = unicode_letter | '_'
+		unicode_letter = /* long list of unicode letters */;
+		
+		byte_value       = octal_byte_value | hex_byte_value
+		octal_byte_value = '\' octal_digit octal_digit octal_digit;
+		hex_byte_valye = '\x' hex_digit hex_digit
+		
+		bool_tok = true | false
+		int_tok = (1..9) {(1..9)} | 0 {(0..7)} | 0 (x | X) {(0..9 | a..f | A..F)}
+		float_tok = {(1..9)} '.' [{(1..9)}] | '.' [{(1..9)}]
+		
+		unary_op_tok = ('+' | '-' | '!' | '*' | '&')
+		binary_op_tok = ('||' | '&&' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '+' | '-' | '|' | '^'' | '*' | '/' | '%' | '<<' | '>>' | '&' | '&^')
+		
+		//keywords
+		package_tok = 'package'
+		var_tok = 'var'
+		func_tok = 'func'
+		return_tok = 'return'
+		if_tok = 'if'
+		ekse_tok = 'else'
+		ident_tok =  (a..z | _) {(a..z | _) | (0..9)}
+				
+		// Whitespace and comments
+		line_comment = '/' [{.*}]
+		comment = '/*' [{.*}] '*/'
+		whitespace = '\t '
+		statement_termination = (';' | '\n' | comment)	
+	
+	\end{verbatim}
+	
+	\begin{verbatim}
+		PARSER
+		
+		// top level stuff
+		SourceFile = PackageClause Eos { TopLevelDecl Eos }
+		PackageClause = "package" ident_tok
+		
+		TopLevelDecl = Declaration | FunctionDecl
+		
+		Block = "{" StatementList "}"
+		Type = [*] IDENT_TOK
+		EOS = statement_termination
+		
+		// Statements
+		StatementList = { Statement EOS }
+		Statement = Declaration | SimpleStmt | Block | ReturnStmt | IfStmt
+		
+		IfStmt = 'if' [SimpleStmt ';'] Expression Block ['else' (IfStmt | Block)]		
+		ReturnStmt = "return" [ExpressionList]
+	
+		SimpleStmt = EmptyStmt | Expression | Assignment
+		Assignment = identifierList [('+' | '-' | '|' | '^' | '*' | '/' | '%' | '<<' | '>>' | '&')] '=' expressionList
+		EmptyStmt = ";"
+		
+		
+		// Declarations
+		Declaration = "var" IdentifierList Type ["=" ExpressionList]
+        IdentifierList = ident_tok { "," ident_tok }
+		
+		
+		// Expressions
+		Expression = UnaryExpr | Expression binary_op_tok Expression
+		binary_op_tok=('*' | '/' | '%' | '<<' | '>>' | '&' | '&^' | '+' | '-' | '|' | '^' | '==' | '!=' | '<' | '<=' | '>' | '>=' | '&&' | '||')
+		
+		UnaryExpr = unary_op_tok UnaryExpr | operand
+		unary_op_tok=('*' | '&' | '+' | '-' | '!' | '^')
+			
+		ExpressionList = Expression { "," Expression }
+		
+	
+		// Operands
+		Operand = basicLit | ident_tok | ident_tok Arguments | "(" Expression ")"
+		
+		Arguments '(' [ExpressionList [',']] ')'
+		
+		BasicLit = int_tok | float_tok | imag_tok  | string_tok | bool_tok
+		
+		
+		// Functions
+		Function = func_tok ident_tok signature [block]
+		Signature = parameters [result]
+		Result = type
+		
+		Parameters = '(' [parameterList [',']] [...] ')'
+		ParameterList = parameterDecl { COMMA parameterDecl }
+		ParameterDecl = identifielList type
+	\end{verbatim}
 
     \section{Język}
     
     1. packages
-    2. imports
     3. exported names
     4. functions
         - declaration
