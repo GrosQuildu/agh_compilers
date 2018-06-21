@@ -129,53 +129,77 @@
 	\end{verbatim}
 
     \section{Język}
-    
-    1. packages
-    3. exported names
-    4. functions
-        - declaration
-        - definition
-        - arguments
-        - return values
-        - externs
-    5. variables
-        - declaration
-        - types
-        - initializers
-        - constants
-    6. types
-    7. casting
-    8. control flow
-        - if/the/else
-    9. pointers
-
-
+    \begin{itemize}
+    	\item package
+    	
+    	Plik musi zaczynać się od wyrażenia 'package' identyfikator.
+    	Aktualnie nie używane do niczego.
+    	
+    	\item functions
+    	
+    	Główna funkcja to 'main', musi być zdefiniowana.
+    	Funkcje mogą być deklarowane (bez ciała). Taka funkcje będzie rozwiązana jako funkckja ze libc lub musi być zdefiniowana w dalczej części pliku.
+    	
+    	Funkcje mają argumenty (postaci '(arg1, arg type, arg3 type)').
+    	Opcjonalna zwracana wartość występuje za parametrami.
+    	
+    	\item zmienne
+    	
+    	Zmienne globalne definiowane są poza funkcjami, są widoczne wszędzie.
+    	Deklaracja zmiennych: 'var var\_name type'.
+    	
+    	\item typy
+    	
+    	Dozwolone typy: intX (X to ilość bitów, od 1 do (1<<24)-1), floatX (X to ilość bitów: 16, 32, 64, 128)
+    	
+    	Typy są dynamicznie zmieniane (poza inicjalizacją przy deklaracji, wtedy zadeklarowany typ jest zachowany).
+    	
+    	W razie zmiany typu, która traci precyzje, generowane jest ostrzeżenie.
+    	
+    	\item wskaźniki
+    	
+    	Postaci: 'var var\_name *type'
+    	
+    	Przypisanie zmiennej: 'var\_name =\&other\_var'
+    	
+    	Wyłuskanie: '*var\_name'
+		    	    	
+    	\item if/else
+    	
+    	Postaci: 'if expression {} else if expression {} else {}'
+    	
+    	\item Zasięg zmiennych
+    	
+    	Zmienne są ograniczone do bloków '{}'
+    	
+    	
+    \end{itemize}
 
 
     \section{Build'n'Run}
+    \begin{minted}[mathescape,
+    linenos,
+    numbersep=5pt,
+    gobble=2,
+    frame=lines,
+    framesep=2mm]{c}
+    
+    # ANTLR -> generate parser
+    $ java -jar antlr-4.7.1-complete.jar  -Werror -Dlanguage=Cpp -listener -visitor -o src/generated/ -package go_parser Go2LLVM.g4
+    
+    # build
+    $ cmake .
+    
+    # run
+    $ ./cmake-build-debug/go_parser
+    Usage ./cmake-build-debug/go_parser file.go [-o | --out file.ll]
+    
+    # example
+    $ /cmake-build-debug/go_parser examples/all.go && clang++ -g examples/all.ll -o ./examples/all.bin && ./examples/all.bin
+    \end{minted}
+    
+	
 
-    \section{LLVM}
 
-
-	
-	
-	\begin{lstlisting}
-	millis() - dispTime[i]*codeChangeCounter[i] - totalTimePaused >= dispTime[i]
-	\end{lstlisting}
-
-	
-	\section{Listing kodu}
-	\begin{minted}[mathescape,
-	linenos,
-	numbersep=5pt,
-	gobble=2,
-	frame=lines,
-	framesep=2mm]{c}
-	
-	/*
-	* ~Paweł Płatek
-	*/
-	\end{minted}
-	
 \end{document}
 
