@@ -66,7 +66,9 @@ Any Go2LLVMMyVisitor::visitTopLevelDecl(Go2LLVMParser::TopLevelDeclContext *ctx)
 
             // initialize them at the beginning of the main function
             if (variable->getValue() != nullptr) {
-                builder.CreateStore(variable->getValue(), global_var, false);
+                Function *function = module->getFunction("main");
+                IRBuilder<> tmp_builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                tmp_builder.CreateStore(variable->getValue(), global_var, false);
             }
         }
     }
