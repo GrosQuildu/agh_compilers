@@ -130,8 +130,8 @@ returnStmt
 
 //SimpleStmt = EmptyStmt | Expression | Assignment
 simpleStmt
-    : expression
-    | assignment
+    : assignment
+    | expression
     | emptyStmt
     ;
 
