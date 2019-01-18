@@ -49,7 +49,7 @@ include_directories(
 )
 
 # llvm stuff
-find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM "6.0.1" REQUIRED CONFIG)
 
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -110,5 +110,5 @@ target_link_libraries(go_parser ${llvm_libs} ${PROJECT_SOURCE_DIR}/antlr_runtime
 
 
 # testing
-add_executable(testing ${PROJECT_SOURCE_DIR}/testing/testing.cpp)
-target_link_libraries(testing ${llvm_libs})
+#add_executable(testing ${PROJECT_SOURCE_DIR}/testing/testing.cpp)
+#target_link_libraries(testing ${llvm_libs})

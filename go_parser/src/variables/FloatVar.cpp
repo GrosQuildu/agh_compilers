@@ -13,13 +13,13 @@ using llvm::CmpInst;
 FloatVar::FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, std::string number) : BasicVar(context,
                                                                                                           builder) {
     // todo: exponent handling
-    value = ConstantFP::get(context, APFloat(APFloat::IEEEdouble, number));
+    value = ConstantFP::get(context, APFloat(APFloat::IEEEdouble(), number));
 
     this->name = "basicFloatLiteral";
     this->type = value->getType();
 }
 
-FloatVar::FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+FloatVar::FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
                    const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {
 
 }

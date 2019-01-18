@@ -10,7 +10,7 @@ using llvm::Constant;
 using llvm::APInt;
 using llvm::CmpInst;
 
-PointerVar::PointerVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+PointerVar::PointerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
                        const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {}
 
 llvm::Value *PointerVar::Cast(llvm::Value *l) {

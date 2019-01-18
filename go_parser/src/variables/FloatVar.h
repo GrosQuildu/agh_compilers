@@ -9,7 +9,7 @@ namespace go_parser {
     public:
         FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, std::string init_value);
 
-        FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder, const std::string &name,
+        FloatVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, const std::string &name,
                    llvm::Type *type);
 
         BasicVar* Expression(std::string op, BasicVar *var) override;

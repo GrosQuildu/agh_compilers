@@ -1,5 +1,6 @@
 #include <sstream>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include "Helpers.h"
 #include "exceptions/Go2LLVMError.h"
@@ -106,7 +107,7 @@ void MyBlock::DumpVariables() {
     string result = "";
     for(auto &named_value : named_values) {
         cout<<named_value.second->name<<": ";
-        named_value.second->getValue()->dump();
+        named_value.second->getValue()->print(llvm::outs(), true);
         cout<<"\n";
     }
     if(this->previous != nullptr)

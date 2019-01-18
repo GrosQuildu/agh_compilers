@@ -10,7 +10,7 @@ using llvm::Constant;
 using llvm::APInt;
 using llvm::CmpInst;
 
-VoidVar::VoidVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+VoidVar::VoidVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
                        const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {}
 
 llvm::Value *VoidVar::Cast(llvm::Value *l) {

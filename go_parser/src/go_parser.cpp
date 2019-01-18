@@ -1,6 +1,7 @@
 #include <iostream>
 
-#include "llvm/Support/raw_os_ostream.h"
+#include <llvm/Support/raw_os_ostream.h>
+#include <llvm/Support/raw_ostream.h>
 #include "antlr4-runtime.h"
 #include "Go2LLVMParser.h"
 #include "Go2LLVMLexer.h"
@@ -90,7 +91,7 @@ int main(int argc, const char **argv) {
 
     // Verify, dump to stdout and save to file
     verifyModule(*module);
-    module->dump();
+    module->print(llvm::outs(), nullptr);
 
     ofstream output_file_stream(output_file);
     raw_os_ostream OutputFile(output_file_stream);

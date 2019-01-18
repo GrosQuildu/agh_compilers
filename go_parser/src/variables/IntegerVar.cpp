@@ -34,7 +34,7 @@ IntegerVar::IntegerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, s
     this->type = value->getType();
 }
 
-IntegerVar::IntegerVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+IntegerVar::IntegerVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
                        const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {}
 
 llvm::Value *IntegerVar::Cast(llvm::Value *l) {

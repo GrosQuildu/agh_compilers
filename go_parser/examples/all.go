@@ -117,7 +117,7 @@ func main() {
 
 	// string formating
 	puts("string formatting:");
-	puts("\x41\x42\x20");
+	puts("\x41\x42\x20\x41");
 
 	// statements ending
 	// may be with newline or with semicolon ;

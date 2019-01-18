@@ -25,7 +25,7 @@ BoolVar::BoolVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder, std::st
     this->type = value->getType();
 }
 
-BoolVar::BoolVar(llvm::LLVMContext &context, llvm::IRBuilder<true> &builder,
+BoolVar::BoolVar(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
                  const std::string &name, llvm::Type *type) : BasicVar(context, builder, name, type) {}
 
 llvm::Value *BoolVar::Cast(llvm::Value *l) {
