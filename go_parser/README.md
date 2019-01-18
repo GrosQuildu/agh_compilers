@@ -1,12 +1,13 @@
-==== Go2LLVM ====
+# Go2LLVM
+
 
 LLVM based compiler for Golang like language.
 
-=== General info ===
+## General info
 
 Written in C++. Uses ANTLR4 (c++ API) as a parser generator and LLVM (version 6) for code generation.
 
-=== Tokens ===
+## Tokens
 [[https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L246|plik G4]]
 
 ```
@@ -48,7 +49,7 @@ whitespace = '\t '
 statement_termination = (';' | '\n' | comment)  
 ```
 
-=== Grammar ===
+##  Grammar
 [[https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L68|plik G4]]
 
 ```
@@ -108,13 +109,13 @@ ParameterList = parameterDecl { COMMA parameterDecl }
 ParameterDecl = identifielList type
 ```
 
-=== Input language ===
+##  Input language
 
-== header ==
+### header
     	
 File have to start with: `package id` (id is not realy used for anything).
 
-== variables ==
+### variables
 
 Variable declaration: `var var_name type`.
 
@@ -146,7 +147,7 @@ define void @main() {
 }
 ```
 
-== types ==
+### types
 
 Allowed types are: `intX` (X is a bit amount, between `1` and `(1<<24)-1`), `floatX` (X is one of: 16, 32, 64, 128), bool. 
 
@@ -214,7 +215,7 @@ define void @main() {
 }
 ```
 
-== functions ==
+### functions
 
 "Main" function is the first executed, must be defined.
 
@@ -291,7 +292,7 @@ define i77 @test_func(i64 %a, double %b) {
 }
 ```
 
-== pointers ==
+### pointers
 
 Syntax: `var var_name *type`
 
@@ -303,7 +304,7 @@ Value assignemnts: `*var_name = 5`
 
 Pointers are strictly typed.
 
-== conditional expressions ==
+### conditional expressions
 
 Syntax: `if expression {} else if expression {} else {}`
 
@@ -389,7 +390,7 @@ merge9:                                           ; preds = %merge, %if
 }
 ```
 
-=== Complete example ===
+## Complete example
 
 ```go
 package examples
@@ -520,7 +521,7 @@ func func1(a int) int {
 }
 ```
 
-=== Build & run ===
+## Build & run
 ```bash
 # ANTLR -> generate parser
 $ java -jar antlr-4.7.1-complete.jar -Werror -Dlanguage=Cpp -listener -visitor -o src/generated/ -package go_parser Go2LLVM.g4
