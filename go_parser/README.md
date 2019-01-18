@@ -8,7 +8,7 @@ LLVM based compiler for Golang like language.
 Written in C++. Uses ANTLR4 (c++ API) as a parser generator and LLVM (version 6) for code generation.
 
 ## Tokens
-[[https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L246|plik G4]]
+[G4 file](https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L246)
 
 ```
 LEXER
@@ -50,7 +50,7 @@ statement_termination = (';' | '\n' | comment)
 ```
 
 ##  Grammar
-[[https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L68|plik G4]]
+[G4 file](https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L68)
 
 ```
 PARSER
