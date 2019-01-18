@@ -5,7 +5,7 @@ LLVM based compiler for Golang like language.
 
 ## General info
 
-Written in C++. Uses ANTLR4 (c++ API) as a parser generator and LLVM (version 6) for code generation.
+Written in C++. Uses ANTLR4 (c++ API) as a parser generator and LLVM (version 6.0.1) for code generation.
 
 ## Tokens
 [G4 file](https://github.com/GrosQuildu/agh_compilers/blob/master/go_parser/Go2LLVM.g4#L246)
@@ -535,5 +535,5 @@ $ ./cmake-build-debug/go_parser
 Usage ./cmake-build-debug/go_parser file.go [-o | --out file.ll]
 
 # example
-$ /cmake-build-debug/go_parser examples/all.go && clang++ -g -lm examples/all.ll -o ./examples/all.bin && ./examples/all.bin
+$ ./cmake-build-debug/go_parser examples/all.go && clang++ -g --stdlib=libc++ examples/all.ll -o ./examples/all.bin && ./examples/all.bin
 ```
