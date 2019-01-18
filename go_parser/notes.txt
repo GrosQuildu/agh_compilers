@@ -1,4 +1,0 @@
-
-
-dodac przyklad w llvm
- arytmetyka, ify, funkcje
